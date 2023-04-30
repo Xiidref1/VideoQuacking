@@ -4,5 +4,6 @@ public enum PropertiesKeyEnum {
     DEFAULT_QUALITY,
     DEFAULT_NAME,
     SEASON,
-    LAST_EP_NUM;
+    LAST_EP_NUM,
+    STATUS;
 }

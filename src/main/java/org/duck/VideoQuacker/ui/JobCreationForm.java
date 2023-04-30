@@ -12,17 +12,20 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.controlsfx.control.Notifications;
 import org.duck.VideoQuacker.enums.DownloadTypeEnum;
 import org.duck.VideoQuacker.enums.PropertiesKeyEnum;
 import org.duck.VideoQuacker.enums.QualityEnum;
 import org.duck.VideoQuacker.utils.Callback;
 import org.duck.VideoQuacker.utils.Properties;
 
+import javax.management.Notification;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -30,7 +33,7 @@ import java.util.regex.Pattern;
 
 public class JobCreationForm extends VBox {
 
-    final Pattern urlPattern = Pattern.compile("((https?|ftp)://|(www|ftp)\\.)[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?");
+    final Pattern urlPattern = Pattern.compile("^(https?|ftp)://.+$");
 
     private Label titre;
     private GridPane boxFormulaire;
@@ -70,6 +73,7 @@ public class JobCreationForm extends VBox {
     public void initClipboard() {
         this.clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         this.clipboard.addFlavorListener(e -> this.handleClipBoardChange());
+        getScene().setOnKeyPressed(null);
         getScene().setOnKeyPressed(e -> {
             if (e.isControlDown() && e.getCode() == KeyCode.C) {
                 this.handleClipBoardChange();
@@ -163,7 +167,15 @@ public class JobCreationForm extends VBox {
 
         if (!this.configFile.exists()) {
             Map<String, String> initialConfig = new HashMap<>();
-            initialConfig.put(PropertiesKeyEnum.DEFAULT_NAME.name(), "Name S{{snum}}E{{enum}}.mp4");
+            String baseName = videoFolder.getName();
+            if (baseName.split(" ").length > 10) {
+                String initials = "";
+                for (String word:baseName.split(" ")) {
+                    initials += word.charAt(0);
+                }
+                baseName = initials.toUpperCase(Locale.ROOT);
+            }
+            initialConfig.put(PropertiesKeyEnum.DEFAULT_NAME.name(), baseName + " S{{snum}}E{{enum}}.mp4");
             initialConfig.put(PropertiesKeyEnum.DEFAULT_QUALITY.name(), QualityEnum.QUALITY_720_LOW.name());
             initialConfig.put(PropertiesKeyEnum.SEASON.name(), "1");
             Properties.createOrUpdatePropFile(this.configFile, initialConfig);
@@ -296,7 +308,7 @@ public class JobCreationForm extends VBox {
                         this.configFile,
                         epNum,
                         DownloadTypeEnum.valueOf(this.typeChoice.getValue()),
-                        QualityEnum.from(Integer.parseInt(this.qualityChoice.getValue()))
+                        QualityEnum.valueOf(this.qualityChoice.getValue())
                 )
         );
     }
@@ -311,7 +323,13 @@ public class JobCreationForm extends VBox {
                 Matcher matcher = urlPattern.matcher(data);
                 if (matcher.find()) {
                     String url = matcher.group();
-                    Platform.runLater(() -> this.url.setText(url));
+                    Platform.runLater(() -> {
+                        this.url.setText(url);
+                        Notifications.create().title("URL Copied")
+                                .text("The url " + url + " was correctly copied")
+                                .show();
+                        this.initClipboard();
+                    });
                 }
             } catch (UnsupportedFlavorException unsupportedFlavorException) {
                 unsupportedFlavorException.printStackTrace();
