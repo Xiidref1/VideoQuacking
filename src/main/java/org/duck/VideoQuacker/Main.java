@@ -3,18 +3,11 @@ package org.duck.VideoQuacker;
 import javafx.application.Application;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import org.duck.VideoQuacker.ui.Job;
-import org.duck.VideoQuacker.ui.JobCreationForm;
-import org.duck.VideoQuacker.ui.JobManager;
-import org.duck.VideoQuacker.ui.Selector;
-import org.duck.VideoQuacker.utils.Callback;
+import org.duck.VideoQuacker.ui.*;
 
-import java.awt.*;
 import java.io.File;
 
 public class Main extends Application {

@@ -55,6 +55,7 @@ public class Job extends VBox {
     private MenuItem menuItemStop;
     private MenuItem menuItemRetryDl;
     private MenuItem menuItemRetryEncode;
+    private MenuItem menuItemContinueAnyway;
 
 
     private FfprobeResult ffprobeResult;
@@ -81,11 +82,13 @@ public class Job extends VBox {
         this.menuItemStop.setOnAction(actionEvent -> this.stopJob());
         this.menuItemRetryDl = new MenuItem("Retry download");
         this.menuItemRetryEncode = new MenuItem("Retry encode");
+        this.menuItemContinueAnyway = new MenuItem("Ignore and continue to encode anyway");
 
         this.menuItemClear.setOnAction(actionEvent -> this.manager.clear(this));
         this.menuItemClearAll.setOnAction(actionEvent -> this.manager.clearAll());
         this.menuItemRetryDl.setOnAction(actionEvent -> this.start());
         this.menuItemRetryEncode.setOnAction(actionEvent -> new Thread(this::encoding).start());
+        this.menuItemContinueAnyway.setOnAction(actionEvent -> new Thread(this::encoding).start());
 
         this.setOnContextMenuRequested(e -> {
             contextMenu.show(this.getScene().getWindow(), e.getScreenX(), e.getScreenY());
@@ -160,8 +163,9 @@ public class Job extends VBox {
                 if (result.done) {
                     this.contextMenu.getItems().remove(this.menuItemStop);
                     this.progress.setProgress(1);
-                    if (result.second != ffprobeResult.getTimeSecondes()) {
+                    if (Math.abs(result.second - ffprobeResult.getTimeSecondes()) > 1) {
                         this.contextMenu.getItems().add(this.menuItemRetryDl);
+                        this.contextMenu.getItems().add(this.menuItemContinueAnyway);
                         this.progress.setStyle("-fx-accent: red");
                         this.stepInProgress.setText("Download Interruption : " + (result.second / 60) + "m" + (result.second % 60) + "s/" + (int) (ffprobeResult.getTimeSecondes() / 60) + "m" + (int) (ffprobeResult.getTimeSecondes() % 60) + "s");
                         if (this.filename.exists()) {

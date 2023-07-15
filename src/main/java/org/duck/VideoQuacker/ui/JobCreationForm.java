@@ -328,7 +328,6 @@ public class JobCreationForm extends VBox {
                         Notifications.create().title("URL Copied")
                                 .text("The url " + url + " was correctly copied")
                                 .show();
-                        this.initClipboard();
                     });
                 }
             } catch (UnsupportedFlavorException unsupportedFlavorException) {
