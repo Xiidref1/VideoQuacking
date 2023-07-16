@@ -212,6 +212,7 @@ public class Job extends VBox {
                 this.currentStep = stepNone;
                 this.contextMenu.getItems().add(this.menuItemRetryEncode);
                 this.encodingSkipable = false;
+                return;
             }
         } catch (IOException e) {
             e.printStackTrace();
