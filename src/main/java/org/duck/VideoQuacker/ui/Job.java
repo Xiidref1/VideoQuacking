@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +59,7 @@ public class Job extends VBox {
     private MenuItem menuItemRetryEncode;
     private MenuItem menuItemContinueAnyway;
 
+    private boolean encodingSkipable = true;
 
     private FfprobeResult ffprobeResult;
 
@@ -149,18 +152,18 @@ public class Job extends VBox {
                     .setCRF(QualityEnum.QUALITY_MAX_SOURCE.crf)
                     .setPreset("veryslow")
                     .setOutput(this.tmpFilename.getAbsolutePath());
-//            this.ffmpegjob = ffmpeg.setInput(this.url)
-//                    .selectVideoStream(ffprobeResult.getNearestVideoStream(this.quality))
-//                    .selectAudioStream(ffprobeResult.getNearestAudioStream(44100))
-//                    .setGeneralCodec("copy")
-//                    .setRescale(this.quality)
-//                    .setCRF(this.quality.crf)
-//                    .setPreset("veryslow")
-//                    .setOutput(this.filename.getAbsolutePath());
+
             this.ffmpegjob.run((caller, result) -> Platform.runLater(() -> {
                 this.progress.setProgress(((double) result.second) / ((double) ffprobeResult.getTimeSecondes()));
                 this.stepInProgress.setText("1/2 Download : " + (result.second / 60) + "m" + (result.second % 60) + "s/" + (int) (ffprobeResult.getTimeSecondes() / 60) + "m" + (int) (ffprobeResult.getTimeSecondes() % 60) + "s");
                 if (result.done) {
+                    Ffprobe probeDownloaded = new Ffprobe();
+                    probeDownloaded.setInput(this.tmpFilename.getAbsolutePath());
+                    try {
+                        result.second = probeDownloaded.run().getTimeSecondes();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     this.contextMenu.getItems().remove(this.menuItemStop);
                     this.progress.setProgress(1);
                     if (Math.abs(result.second - ffprobeResult.getTimeSecondes()) > 1) {
@@ -195,6 +198,24 @@ public class Job extends VBox {
 
 
     public void encoding() {
+
+        if (this.currentStep == stepNone) {
+            //Encoding not done because file small enough but stated manually anyway.
+            this.filename.renameTo(this.tmpFilename);
+        }
+
+        try {
+            if (Files.size(Paths.get(this.tmpFilename.getAbsolutePath())) <= this.quality.sizeThreshold && this.encodingSkipable) {
+                this.tmpFilename.renameTo(this.filename);
+                this.progress.setStyle("-fx-accent: green");
+                this.stepInProgress.setText("Done (skipped encoding file small enough " + (Files.size(Paths.get(this.tmpFilename.getAbsolutePath())) / 1024 / 1024) + "Mb)");
+                this.currentStep = stepNone;
+                this.contextMenu.getItems().add(this.menuItemRetryEncode);
+                this.encodingSkipable = false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         Ffprobe ffprobe = new Ffprobe();
         ffprobe.setInput(this.tmpFilename.getAbsolutePath());
