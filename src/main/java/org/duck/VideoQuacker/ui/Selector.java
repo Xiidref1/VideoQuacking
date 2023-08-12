@@ -174,9 +174,9 @@ public class Selector extends VBox {
                     case FOLDER -> this.iconImageView.setImage(Selector.this.folderIcon);
                     case EPISODES -> this.iconImageView.setImage(Selector.this.videoIcon);
                 }
-                if (customTreeItem.type != CustomTreeItem.CustomTreeItemTypes.ROOT_ITEM && this.openFolderMenu == null) {
+                if (customTreeItem.type != CustomTreeItem.CustomTreeItemTypes.ROOT_ITEM) {
                     this.openFolderMenu = new ContextMenu();
-                    MenuItem addMenuItem = new MenuItem("Open in folder");
+                    MenuItem addMenuItem = new MenuItem(customTreeItem.type == CustomTreeItem.CustomTreeItemTypes.FOLDER ? "Open folder":"Start Video");
                     openFolderMenu.getItems().add(addMenuItem);
                     addMenuItem.setOnAction((ActionEvent t) -> {
                         try {

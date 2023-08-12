@@ -12,10 +12,14 @@ public class JobManager extends ListView<Job> {
     }
 
     public void clear(Job j) {
+        j.stopJob();
         this.getItems().remove(j);
     }
 
     public void clearAll() {
+        for (Job j: this.getItems()) {
+            j.stopJob();
+        }
         this.getItems().clear();
     }
 }

@@ -31,12 +31,13 @@ public class Ffmpeg {
     private String output;
     private List<String> headers = new ArrayList<>();
     private String generalCodec;
-    private int crf;
-    private String preset;
+    private int crf = -1;
+    private String preset = null;
     private int videoStreamId;
     private int audioStreamId;
     private int reScale;
     private long maxBitrate = -1;
+    private long maxVideoBitrate = -1;
 
     public Ffmpeg(FfprobeResult ffprobeResult) {
         this.ffprobeResult = ffprobeResult;
@@ -94,6 +95,16 @@ public class Ffmpeg {
         return this;
     }
 
+    public Ffmpeg setMaxVideoBitrate(long videoBitrate) {
+        if (videoBitrate > 0) {
+                    this.maxVideoBitrate = videoBitrate;
+        } else {
+            //In case of maxQuality the bitrate is negative
+            this.maxVideoBitrate = -1;
+        }
+        return this;
+    }
+
 
     public void run(Callback<Ffmpeg, FfmpegProgress> progressCallBack) throws IOException {
         String ffmpegProgram = UTILS.getPathToRes("ffmpeg.exe");
@@ -147,10 +158,14 @@ public class Ffmpeg {
         command.add("0:a:" + this.audioStreamId);
 
         //Select preset and crf
-        command.add("-crf");
-        command.add("" + this.crf);
-        command.add("-preset");
-        command.add(this.preset);
+        if (this.crf != -1) {
+            command.add("-crf");
+            command.add("" + this.crf);
+        }
+        if (this.preset != null) {
+            command.add("-preset");
+            command.add(this.preset);
+        }
 
 
         if (this.maxBitrate != -1) {
@@ -160,6 +175,10 @@ public class Ffmpeg {
             command.add((this.maxBitrate * 10) + "k");
         }
 
+        if (this.maxVideoBitrate != -1) {
+            command.add("-b:v");
+            command.add(this.maxVideoBitrate + "k");
+        }
 
         //Set output
         command.add(this.output);

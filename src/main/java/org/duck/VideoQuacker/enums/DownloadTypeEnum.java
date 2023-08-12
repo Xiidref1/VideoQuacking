@@ -1,6 +1,6 @@
 package org.duck.VideoQuacker.enums;
 
 public enum DownloadTypeEnum {
-    WGET,
-    HLS;
+    FFMPEG,
+    CUSTOM_HLS
 }

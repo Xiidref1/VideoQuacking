@@ -185,7 +185,7 @@ public class JobCreationForm extends VBox {
 
         this.typeChoice.getItems().clear();
         for (DownloadTypeEnum dltype : DownloadTypeEnum.values()) this.typeChoice.getItems().add(dltype.name());
-        this.typeChoice.setValue(DownloadTypeEnum.HLS.name());
+        this.typeChoice.setValue(DownloadTypeEnum.FFMPEG.name());
 
         this.qualityChoice.getItems().clear();
         this.defaultQuality.getItems().clear();
