@@ -120,13 +120,7 @@ public class Job extends VBox {
         this.menuItemContinueAnyway.setOnAction(actionEvent -> new Thread(this::encoding).start());
         this.menuItemResumeCustomMasterDownload.setOnAction(actionEvent -> new Thread(this::dlCustomHLS).start());
         this.menuItemResumeCustomSegmentDownload.setOnAction(actionEvent -> new Thread(this::dlCustomHLS).start());
-        this.menuItemShowResultInFolder.setOnAction(actionEvent -> {
-            try {
-                Desktop.getDesktop().open(this.filename);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        this.menuItemShowResultInFolder.setOnAction(actionEvent -> Desktop.getDesktop().browseFileDirectory(this.filename));
 
         this.setOnContextMenuRequested(e -> {
             contextMenu.show(this.getScene().getWindow(), e.getScreenX(), e.getScreenY());
@@ -212,13 +206,20 @@ public class Job extends VBox {
 
             //Reading master m3u8 file to get the est resolution in it
             while ((line = disMaster.readLine()) != null) {
+                line = line.trim();
                 if (line.toUpperCase(Locale.ROOT).startsWith("#EXT-X-STREAM-INF")) {
                     Matcher matcher = patternResolution.matcher(line);
                     if (matcher.matches()) {
                         long resolution = Long.parseLong(matcher.group("width")) * Long.parseLong(matcher.group("height"));
                         if (resolution > targetResolution) {
-                            targetUrl = disMaster.readLine();
-                            targetResolution = resolution;
+                            line = disMaster.readLine();
+                            if (line != null && !line.trim().isEmpty()) {
+                                targetUrl = line.trim();
+                                if (!targetUrl.startsWith("http")) {
+                                    targetUrl = new URL(new URL(masterURL), targetUrl).toString();
+                                }
+                                targetResolution = resolution;
+                            }
                         }
                     }
                 }
@@ -246,13 +247,23 @@ public class Job extends VBox {
 
             //Gathering each segment url from the index file selected from the master file
             while ((line = disIndex.readLine()) != null) {
+                line = line.trim();
                 if (line.startsWith("#EXTINF")) {
-                    URL urlTs = new URL(disIndex.readLine());
-                    File segmentFile = new File(tmpFolder, this.segmentUrl.size() + ".ts");
-                    this.segmentUrl.put(urlTs, segmentFile);
-                    this.nbDownloadTryBySegment.put(urlTs, 0);
-                    this.segmentIds.put(urlTs, this.segmentCount++);
-                    this.orderedSegmentsFile.add(segmentFile);
+                    line = disIndex.readLine();
+                    if (line != null && !line.trim().isEmpty()) {
+                        line = line.trim();
+                        URL urlTs;
+                        if (line.startsWith("http")) {
+                            urlTs = new URL(line);
+                        } else {
+                            urlTs = new URL(new URL(targetUrl), line);
+                        }
+                        File segmentFile = new File(tmpFolder, this.segmentUrl.size() + ".ts");
+                        this.segmentUrl.put(urlTs, segmentFile);
+                        this.nbDownloadTryBySegment.put(urlTs, 0);
+                        this.segmentIds.put(urlTs, this.segmentCount++);
+                        this.orderedSegmentsFile.add(segmentFile);
+                    }
                 }
             }
             this.segmentCount--;
@@ -296,7 +307,7 @@ public class Job extends VBox {
                     if (response.isSuccessful()) {
                         ResponseBody responseBody = response.body();
                         if (responseBody != null) {
-                            try(FileOutputStream fileOutputStream = new FileOutputStream(segment.getValue())) {
+                            try (FileOutputStream fileOutputStream = new FileOutputStream(segment.getValue())) {
                                 fileOutputStream.write(responseBody.bytes());
                                 fileOutputStream.close();
                                 this.nbDownloadTryBySegment.remove(segment.getKey());
@@ -310,7 +321,7 @@ public class Job extends VBox {
                 } catch (IOException e) {
                     // Handle connection and I/O errors
                     this.nbDownloadTryBySegment.put(segment.getKey(), this.nbDownloadTryBySegment.get(segment.getKey()) + 1);
-                    System.out.println("Download " + segmentIds.get(segment.getKey()) + " failed ("+e.getClass().getName()+")" + ", will try again");
+                    System.out.println("Download " + segmentIds.get(segment.getKey()) + " failed (" + e.getClass().getName() + ")" + ", will try again");
                 }
             }
         }
@@ -331,7 +342,7 @@ public class Job extends VBox {
                 try (FileOutputStream fos = new FileOutputStream(this.tmpFilename)) {
                     int i = 1;
                     for (File f : this.orderedSegmentsFile) {
-                        this.updateProgress("blue", (double)i/(double)this.orderedSegmentsFile.size(), "3/3 Merging segment " + i++ + "/" + this.orderedSegmentsFile.size());
+                        this.updateProgress("blue", (double) i / (double) this.orderedSegmentsFile.size(), "3/3 Merging segment " + i++ + "/" + this.orderedSegmentsFile.size());
                         try (FileInputStream fis = new FileInputStream(f)) {
                             byte[] buffer = new byte[8192]; // Adjust buffer size as needed
                             int bytesRead;
