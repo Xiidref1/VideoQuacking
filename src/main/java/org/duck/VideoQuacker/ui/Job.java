@@ -22,6 +22,7 @@ import java.awt.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -202,11 +203,17 @@ public class Job extends VBox {
             DataInputStream disMaster = new DataInputStream(new BufferedInputStream(masterM3u8Connection.getInputStream()));
             String targetUrl = null;
             String line = "";
+            StringBuilder linesBackup = new StringBuilder();
+            boolean possibleDirectMatch = false;
             long targetResolution = -1;
 
             //Reading master m3u8 file to get the est resolution in it
             while ((line = disMaster.readLine()) != null) {
                 line = line.trim();
+                linesBackup.append(line);
+                if (line.startsWith("#EXTINF")) {
+                    possibleDirectMatch = true;
+                }
                 if (line.toUpperCase(Locale.ROOT).startsWith("#EXT-X-STREAM-INF")) {
                     Matcher matcher = patternResolution.matcher(line);
                     if (matcher.matches()) {
@@ -225,24 +232,31 @@ public class Job extends VBox {
                 }
             }
 
-            if (targetUrl == null)
-                throw new Exception("Target URL not found in m3u8 file");
+            DataInputStream disIndex;
+            if (targetUrl == null) {
+                if (possibleDirectMatch) {
+                    targetUrl = masterURL;
+                    disIndex = new DataInputStream(new ByteArrayInputStream(linesBackup.toString().getBytes(StandardCharsets.UTF_8)));
+                } else {
+                    throw new Exception("Target URL not found in m3u8 file");
+                }
+            } else {
+                URL indexM3u8 = new URL(targetUrl);
+                HttpURLConnection indexM3u8Connection = (HttpURLConnection) indexM3u8.openConnection();
+                for (Map.Entry<String, String> entry : HostsEnum.getHeadersForHost(this.url).entrySet()) {
+                    indexM3u8Connection.setRequestProperty(entry.getKey(), entry.getValue());
+                }
+                disIndex = new DataInputStream(new BufferedInputStream(indexM3u8Connection.getInputStream()));
+            }
 
             this.updateProgress(null, 0.5, null);
-
-            URL indexM3u8 = new URL(targetUrl);
-            HttpURLConnection indexM3u8Connection = (HttpURLConnection) indexM3u8.openConnection();
 
             File tmpFolder = new File(this.tmpFilename.getParentFile(), "tmp");
             if (tmpFolder.exists()) {
                 FileUtils.deleteDirectory(tmpFolder);
             }
             tmpFolder.mkdir();
-            for (Map.Entry<String, String> entry : HostsEnum.getHeadersForHost(this.url).entrySet()) {
-                indexM3u8Connection.setRequestProperty(entry.getKey(), entry.getValue());
-            }
 
-            DataInputStream disIndex = new DataInputStream(new BufferedInputStream(indexM3u8Connection.getInputStream()));
             this.segmentCount = 1;
 
             //Gathering each segment url from the index file selected from the master file
