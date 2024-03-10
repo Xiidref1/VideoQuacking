@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox styleClass="backgroundBox" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.quack.videoquacker.controllers.SeriesSelectorController">
+   <HBox>
+      <children>
+         <TextField fx:id="tfSerieName" onKeyTyped="#onSearchChanged" promptText="Search or create a serie" HBox.hgrow="ALWAYS" />
+         <Button fx:id="btnNewSerie" onAction="#onCreateSerie" mnemonicParsing="false" text="Create New Serie">
+            <styleClass>
+               <String fx:value="button" />
+               <String fx:value="button-right" />
+            </styleClass></Button>
+      </children>
+   </HBox>
+   <TreeView fx:id="tvArbo" styleClass="backgroundBox" >
+      <TreeItem fx:id="tiRoot" value="Series" expanded="true">
+         <children>
+         </children>
+      </TreeItem>
+   </TreeView>
+</VBox>

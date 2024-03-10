@@ -1,0 +1,62 @@
+Label {
+    -fx-text-fill: #EEEEEE;
+    -fx-font: 12 Roboto;
+}
+
+ChoiceBox {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+}
+
+.pageTitle {
+    -fx-text-fill: #FFFFFF;
+    -fx-font: 18 Roboto;
+    -fx-font-weight: bold;
+}
+
+.backgroundBox {
+    -fx-background-color: #282824
+}
+
+.backgroundBox .tree-cell {
+    -fx-background-color: #282824;
+    -fx-text-fill: #EEEEEE;
+}
+
+.backgroundBox .tree-cell:selected {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-table-cell-border-color: rgba(255, 255, 255, 0.2);
+}
+
+Button {
+    -fx-background-color: rgba(170, 170, 10, 1);
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+}
+
+.button-right {
+    /* top-left, top-right, bottom-right, and bottom-left corners, in that order. */
+    -fx-border-radius: 0 10 10 0;
+    -fx-background-radius: 0 10 10 0;
+}
+
+.button-right:hover {
+    -fx-background-color: rgb(220, 220, 14);
+}
+
+.button-right:pressed {
+    -fx-background-color: rgb(224, 169, 8);
+}
+
+
+
+
+TextField {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-text-inner-color: rgba(255, 255, 255, 1);
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.4);
+}
+
+TextField:focused {
+    -fx-border-color: rgba(170, 170, 10, 0.25);
+    -fx-border-width: 1;
+}

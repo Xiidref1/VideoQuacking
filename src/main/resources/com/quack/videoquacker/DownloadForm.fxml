@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<GridPane hgap="10" vgap="10" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.quack.videoquacker.controllers.DownloadFormController">
+    <columnConstraints>
+        <ColumnConstraints />
+        <ColumnConstraints />
+        <ColumnConstraints />
+        <ColumnConstraints />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+    </rowConstraints>
+   <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" styleClass="pageTitle" text="Download a new episode" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER">
+      <font>
+         <Font size="18.0" />
+      </font>
+   </Label>
+    <TextField fx:id="tfURL" maxWidth="1.7976931348623157E308" promptText="URL to download from (m3u8 file or direct stream)" GridPane.columnSpan="2147483647" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
+    <Label text="Episode name" GridPane.rowIndex="2" />
+    <TextField fx:id="tfTargetEpname" promptText="Episode name after download" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" />
+   <Label layoutX="10.0" layoutY="49.0" text="Quality" GridPane.rowIndex="3" />
+   <ChoiceBox fx:id="cbTargetQuality" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+   <Label layoutX="10.0" layoutY="84.0" text="Download Mode" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+   <ChoiceBox fx:id="cbTargetDlmode" layoutX="95.0" layoutY="80.0" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+   <Button fx:id="btnStartDownload" alignment="CENTER" mnemonicParsing="false" onAction="#startDownloadJob" text="Start download job" textAlignment="CENTER" underline="true" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" />
+   <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="5" />
+   <Label alignment="CENTER" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" maxWidth="1.7976931348623157E308" styleClass="pageTitle" text="Default config for serie" GridPane.columnSpan="2147483647" GridPane.rowIndex="6">
+      <font>
+         <Font size="18.0" />
+      </font>
+   </Label>
+   <Label layoutX="10.0" layoutY="86.0" text="Name pattern" GridPane.rowIndex="7" />
+   <TextField fx:id="tfDefaultNamepattern" layoutX="10.0" layoutY="47.0" maxWidth="1.7976931348623157E308" promptText="Serie Name S{{snum}}E{{epnum}}.mp4" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" />
+   <Label layoutX="10.0" layoutY="121.0" text="Default quality" GridPane.rowIndex="8" />
+   <ChoiceBox fx:id="cbDefaultQuality" layoutX="95.0" layoutY="117.0" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+   <Button fx:id="btnSaveDefaults" alignment="CENTER" layoutX="198.0" layoutY="152.0" mnemonicParsing="false" onAction="#saveDefaults" text="Save defaults" textAlignment="CENTER" underline="true" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="9" />
+
+</GridPane>
