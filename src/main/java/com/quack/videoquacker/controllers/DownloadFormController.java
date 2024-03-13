@@ -1,16 +1,21 @@
 package com.quack.videoquacker.controllers;
 
+import com.quack.videoquacker.MainApplication;
+import com.quack.videoquacker.models.DownloadFormInstance;
+import com.quack.videoquacker.models.DownloadModesEnum;
 import com.quack.videoquacker.models.QualityEnum;
+import com.quack.videoquacker.utils.DataMatcher;
 import com.quack.videoquacker.utils.PropertiesManager;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 
 import java.io.File;
 import java.io.IOException;
 
 public class DownloadFormController {
+    private File currentSeriesSelected;
+    private PropertiesManager currentSeriesProperties;
+
     @FXML
     public TextField tfURL;
     @FXML
@@ -30,20 +35,52 @@ public class DownloadFormController {
     public Button btnSaveDefaults;
 
     public void startDownloadJob() {
+        if (!DataMatcher.isValidUrl(this.tfURL.getText())) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid url aborting");
+            alert.setTitle("Invalid URL");
+            alert.showAndWait();
+            return;
+        }
 
+        if (MainWindowController.instance.currentJobsController.jobWithUrlExist(this.tfURL.getText())) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "URL already used by the job " + MainWindowController.instance.currentJobsController.getJobNameFromUrl(this.tfURL.getText()) + ".\nAre you sure you want to start another job with the same URL ?", ButtonType.YES, ButtonType.CANCEL);
+            alert.setTitle("Invalid URL");
+            alert.setHeaderText("URL already in a job");
+            alert.showAndWait();
+
+            if (alert.getResult() == ButtonType.CANCEL) {
+                return;
+            }
+        }
+
+        DownloadFormInstance jobInstance = new DownloadFormInstance(this.tfURL.getText(),
+                this.tfTargetEpname.getText(),
+                QualityEnum.getFromDisplayText((String) this.cbTargetQuality.getSelectionModel().getSelectedItem()),
+                DownloadModesEnum.getFromDisplayText((String) this.cbTargetDlmode.getSelectionModel().getSelectedItem()),
+                this.currentSeriesSelected,
+                this.currentSeriesProperties
+        );
+
+        MainWindowController.instance.currentJobsController.startJob(jobInstance);
     }
 
     public void saveDefaults() {
-
+        this.currentSeriesProperties.setProperty(PropertiesManager.PropertiesKeys.name_pattern, this.tfDefaultNamepattern.getText())
+                .setProperty(PropertiesManager.PropertiesKeys.default_quality, QualityEnum.getFromDisplayText((String) this.cbDefaultQuality.getValue()).name());
+        this.onSerieSelected(this.currentSeriesSelected);
     }
 
     @FXML
     public void initialize() {
         toogleEnabled(false);
-        for (QualityEnum qualityEnum:QualityEnum.values()) {
+        for (QualityEnum qualityEnum : QualityEnum.values()) {
             this.cbTargetQuality.getItems().add(qualityEnum.displayText);
             this.cbDefaultQuality.getItems().add(qualityEnum.displayText);
         }
+        for (DownloadModesEnum mode : DownloadModesEnum.values()) {
+            this.cbTargetDlmode.getItems().add(mode.displayText);
+        }
+        this.cbTargetDlmode.getSelectionModel().select(0);
     }
 
     private void toogleEnabled(boolean enabled) {
@@ -59,6 +96,7 @@ public class DownloadFormController {
 
 
     public void onSerieSelected(File path) {
+        this.currentSeriesSelected = path;
         if (path == null) {
             this.toogleEnabled(false);
             return;
@@ -95,11 +133,12 @@ public class DownloadFormController {
         this.cbDefaultQuality.getSelectionModel().select(QualityEnum.valueOf(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.default_quality)).displayText);
 
         //JobLaucher settings section
-        String targetEpNum = "000000000"+ (Integer.parseInt(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.max_ep))+1);
+        String targetEpNum = "000000000" + (Integer.parseInt(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.max_ep)) + 1);
         targetEpNum = targetEpNum.substring(targetEpNum.length() - Math.max(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.max_ep).length(), 2));
         this.tfTargetEpname.setText(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.name_pattern).replace("{{epnum}}", targetEpNum));
         this.cbTargetQuality.getSelectionModel().select(QualityEnum.valueOf(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.default_quality)).displayText);
 
+        this.currentSeriesProperties = propertiesManager;
         this.toogleEnabled(true);
     }
 }

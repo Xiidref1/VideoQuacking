@@ -11,10 +11,8 @@ import java.awt.Toolkit;
 
 import java.awt.datatransfer.*;
 import java.io.IOException;
-import java.util.Observable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class MainApplication extends Application {
@@ -43,19 +41,20 @@ public class MainApplication extends Application {
 
     public static void main(String[] args) {
         MainApplication.systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        try (ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1)) {
+            Runnable toRun = () -> {
+                try {
+                    String newClip = (String) MainApplication.systemClipboard.getData(DataFlavor.stringFlavor);
+                    MainApplication.clipboard.update(newClip);
+                } catch (UnsupportedFlavorException ignored) {
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            };
+            scheduler.scheduleAtFixedRate(toRun, 0, 3, TimeUnit.SECONDS);
 
-        Runnable toRun = () -> {
-            try {
-                String newClip = (String) MainApplication.systemClipboard.getData(DataFlavor.stringFlavor);
-                MainApplication.clipboard.update(newClip);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        };
-        scheduler.scheduleAtFixedRate(toRun, 0, 3, TimeUnit.SECONDS);
-
-        launch();
+            launch();
+        }
     }
 
     public static Observerable<String> getClipboard() {

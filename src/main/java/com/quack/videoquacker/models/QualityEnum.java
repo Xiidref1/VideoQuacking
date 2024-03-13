@@ -17,7 +17,7 @@ public enum QualityEnum {
         this.sizeInMb = sizeInMb;
     }
 
-    static QualityEnum getFromDisplayText(String displayText) {
+    public static QualityEnum getFromDisplayText(String displayText) {
         for (QualityEnum quality: QualityEnum.values()) {
             if (quality.displayText.equals(displayText)) {
                 return quality;

@@ -39,11 +39,11 @@ Button {
     -fx-background-radius: 0 10 10 0;
 }
 
-.button-right:hover {
+Button:hover {
     -fx-background-color: rgb(220, 220, 14);
 }
 
-.button-right:pressed {
+Button:pressed {
     -fx-background-color: rgb(224, 169, 8);
 }
 
