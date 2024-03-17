@@ -25,12 +25,18 @@ public class Observerable<T> {
     }
 
     public void update(T newData) {
-        if ((newData == null && data != null) || !(newData != null && newData.equals(this.data))) {
+        if ((newData == null && this.data != null) || !(newData != null && newData.equals(this.data))) {
             this.data = newData;
-            for(Map.Entry<IObservableListener<T>, String> listener:this.registeredListeners.entrySet()){
-                listener.getKey().onObservableChange(listener.getValue(), this.data);
-            }
+            this.notifyListeners();
         }
     }
+
+    public void notifyListeners() {
+        for(Map.Entry<IObservableListener<T>, String> listener:this.registeredListeners.entrySet()){
+            listener.getKey().onObservableChange(listener.getValue(), this.data);
+        }
+    }
+
+
 
 }

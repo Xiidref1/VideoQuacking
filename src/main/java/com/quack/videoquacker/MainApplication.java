@@ -3,9 +3,11 @@ package com.quack.videoquacker;
 import com.quack.videoquacker.utils.Observerable;
 import com.quack.videoquacker.utils.PropertiesManager;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.awt.Toolkit;
 
@@ -26,6 +28,7 @@ public class MainApplication extends Application {
             System.err.println("""
                     Invalid properties file expecting the following keys : 
                      - path.ffmpeg : The full path to the ffmpeg executable file (ffmpeg.exe)
+                     - path.ffprobe : The full path to the ffprobe executable file (ffprobe.exe)
                      - path.workdir : The path of the working directory to be used as a temporary space during download and conversions
                      - path.series : The path where all the series folders will be 
                     """);
@@ -52,7 +55,6 @@ public class MainApplication extends Application {
                 }
             };
             scheduler.scheduleAtFixedRate(toRun, 0, 3, TimeUnit.SECONDS);
-
             launch();
         }
     }

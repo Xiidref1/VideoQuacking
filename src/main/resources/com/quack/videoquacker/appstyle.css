@@ -3,6 +3,11 @@ Label {
     -fx-font: 12 Roboto;
 }
 
+.textSecondary {
+    -fx-font: 10 Roboto;
+    -fx-text-fill: #ABABAA;
+}
+
 ChoiceBox {
     -fx-background-color: rgba(255, 255, 255, 0.2);
 }
@@ -60,3 +65,17 @@ TextField:focused {
     -fx-border-color: rgba(170, 170, 10, 0.25);
     -fx-border-width: 1;
 }
+
+TitledPane {
+    -fx-text-fill: #EEEEEE;
+}
+
+TitledPane > .title
+{
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+}
+TitledPane > .title > .arrow-button .arrow
+{
+    -fx-background-color: rgba(170, 170, 10, 1);
+}
+

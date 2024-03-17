@@ -1,21 +1,28 @@
 package com.quack.videoquacker.controllers;
 
 import com.quack.videoquacker.MainApplication;
-import com.quack.videoquacker.models.DownloadFormInstance;
+import com.quack.videoquacker.models.CopiedParameters;
+import com.quack.videoquacker.models.JobParameters;
 import com.quack.videoquacker.models.DownloadModesEnum;
 import com.quack.videoquacker.models.QualityEnum;
 import com.quack.videoquacker.utils.DataMatcher;
+import com.quack.videoquacker.utils.IObservableListener;
+import com.quack.videoquacker.utils.NotificationManager;
 import com.quack.videoquacker.utils.PropertiesManager;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
-public class DownloadFormController {
+public class DownloadFormController implements IObservableListener<String> {
+    private static String LISTENER_KEY_CLIPBOARD = "clip";
     private File currentSeriesSelected;
     private PropertiesManager currentSeriesProperties;
-
+    private CopiedParameters copiedParameters = null;
     @FXML
     public TextField tfURL;
     @FXML
@@ -28,11 +35,11 @@ public class DownloadFormController {
     public TextField tfDefaultNamepattern;
     @FXML
     public ChoiceBox cbDefaultQuality;
-
     @FXML
     public Button btnStartDownload;
     @FXML
     public Button btnSaveDefaults;
+
 
     public void startDownloadJob() {
         if (!DataMatcher.isValidUrl(this.tfURL.getText())) {
@@ -53,12 +60,13 @@ public class DownloadFormController {
             }
         }
 
-        DownloadFormInstance jobInstance = new DownloadFormInstance(this.tfURL.getText(),
+        JobParameters jobInstance = new JobParameters(DataMatcher.getUrl(this.tfURL.getText()),
                 this.tfTargetEpname.getText(),
                 QualityEnum.getFromDisplayText((String) this.cbTargetQuality.getSelectionModel().getSelectedItem()),
                 DownloadModesEnum.getFromDisplayText((String) this.cbTargetDlmode.getSelectionModel().getSelectedItem()),
                 this.currentSeriesSelected,
-                this.currentSeriesProperties
+                this.currentSeriesProperties,
+                this.copiedParameters == null ? null : this.copiedParameters.getHeaders()
         );
 
         MainWindowController.instance.currentJobsController.startJob(jobInstance);
@@ -81,6 +89,7 @@ public class DownloadFormController {
             this.cbTargetDlmode.getItems().add(mode.displayText);
         }
         this.cbTargetDlmode.getSelectionModel().select(0);
+        MainApplication.getClipboard().registerListener(LISTENER_KEY_CLIPBOARD, this);
     }
 
     private void toogleEnabled(boolean enabled) {
@@ -128,17 +137,41 @@ public class DownloadFormController {
             }
         }
 
-        //Default settings section
-        this.tfDefaultNamepattern.setText(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.name_pattern));
-        this.cbDefaultQuality.getSelectionModel().select(QualityEnum.valueOf(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.default_quality)).displayText);
-
-        //JobLaucher settings section
-        String targetEpNum = "000000000" + (Integer.parseInt(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.max_ep)) + 1);
-        targetEpNum = targetEpNum.substring(targetEpNum.length() - Math.max(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.max_ep).length(), 2));
-        this.tfTargetEpname.setText(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.name_pattern).replace("{{epnum}}", targetEpNum));
-        this.cbTargetQuality.getSelectionModel().select(QualityEnum.valueOf(propertiesManager.getProperty(PropertiesManager.PropertiesKeys.default_quality)).displayText);
-
         this.currentSeriesProperties = propertiesManager;
-        this.toogleEnabled(true);
+
+        Platform.runLater(() -> {
+            //Default settings section
+            this.tfDefaultNamepattern.setText(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.name_pattern));
+            this.cbDefaultQuality.getSelectionModel().select(QualityEnum.valueOf(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.default_quality)).displayText);
+
+            //JobLaucher settings section
+            String targetEpNum = "000000000" + (Integer.parseInt(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.max_ep)) + 1);
+            targetEpNum = targetEpNum.substring(targetEpNum.length() - Math.max(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.max_ep).length(), 2));
+            this.tfTargetEpname.setText(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.name_pattern).replace("{{epnum}}", targetEpNum));
+            this.cbTargetQuality.getSelectionModel().select(QualityEnum.valueOf(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.default_quality)).displayText);
+
+            this.toogleEnabled(true);
+        });
+    }
+
+    @Override
+    public void onObservableChange(String key, String value) {
+        if (key.equals(LISTENER_KEY_CLIPBOARD)) {
+            if (DataMatcher.isValidJSON(value)) {
+                this.copiedParameters = CopiedParameters.fromJsonString(value);
+                Platform.runLater(() -> {
+                    this.tfURL.setText(this.copiedParameters.getUrl());
+                });
+                NotificationManager.notify("Data retrieved for " + this.copiedParameters.getSname() + ", episode " + this.copiedParameters.getEpnum());
+            } else {
+                if (DataMatcher.isValidUrl(value)) {
+                    this.copiedParameters = null;
+                    Platform.runLater(() -> {
+                        this.tfURL.setText(value);
+                    });
+                    NotificationManager.notify("Url retrieved : " + value);
+                }
+            }
+        }
     }
 }

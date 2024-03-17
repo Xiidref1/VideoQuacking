@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane fx:id="rootBox" styleClass="backgroundBox" stylesheets="@appstyle.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.quack.videoquacker.controllers.MainWindowController">
@@ -10,6 +12,13 @@
        <fx:include fx:id="currentJobs" source="CurrentJobs.fxml" />
    </right>
    <center>
-       <fx:include fx:id="downloadForm" source="DownloadForm.fxml" />
+       <HBox BorderPane.alignment="CENTER" spacing="15">
+           <Separator orientation="VERTICAL"/>
+           <fx:include fx:id="downloadForm" source="DownloadForm.fxml" />
+           <Separator orientation="VERTICAL" />
+       </HBox>
    </center>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
 </BorderPane>

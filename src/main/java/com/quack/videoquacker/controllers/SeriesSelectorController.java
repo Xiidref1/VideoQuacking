@@ -111,7 +111,7 @@ public class SeriesSelectorController implements IObservableListener<String> {
         this.tvArbo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             SeriesSelectorController.this.onItemSelected((TreeItem<String>) newValue);
         });
-        this.tiRoot.setGraphic(new ImageView(new Image(RessourceLocator.getRes("icons/goku_icon.jpg"), 20, 20, true, true)));
+        this.tiRoot.setGraphic(new ImageView(new Image(RessourceLocator.getResString("icons/goku_icon.jpg"), 20, 20, true, true)));
         this.refreshList(this.tiRoot, this.seriesPath, LIST_REFRESH_TYPE.TYPE_FOLDER);
         MainApplication.getClipboard().registerListener(LISTENER_KEY_CLIPBOARD, this);
     }
@@ -149,7 +149,7 @@ public class SeriesSelectorController implements IObservableListener<String> {
             }
             TreeItem<String> item = new TreeItem<>();
             item.setValue(f.getName());
-            item.setGraphic(new ImageView(new Image(RessourceLocator.getRes("icons/folder_icon_" + ThreadLocalRandom.current().nextInt(1, 61) + ".png"), 25, 25, true, true)));
+            item.setGraphic(new ImageView(new Image(RessourceLocator.getResString("icons/folder_icon_" + ThreadLocalRandom.current().nextInt(1, 61) + ".png"), 25, 25, true, true)));
             source.getChildren().add(item);
             if (type == LIST_REFRESH_TYPE.TYPE_FOLDER) this.seriesMapByName.put(f.getName(), item);
         }

@@ -5,6 +5,9 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class DataMatcher {
     public static boolean isValidUrl(String input) {
         return UrlValidator.getInstance().isValid(input);
@@ -16,6 +19,14 @@ public class DataMatcher {
             return CopiedParameters.isValid(obj);
         } catch (JSONException e) {
             return false;
+        }
+    }
+
+    public static URL getUrl(String url) {
+        try {
+            return new URL(url);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

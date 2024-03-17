@@ -1,5 +1,7 @@
 package com.quack.videoquacker.utils;
 
+import lombok.NonNull;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,14 +27,14 @@ public class PropertiesManager {
         }
     }
 
-    public static PropertiesManager getMainProperties() {
+    public static @NonNull PropertiesManager getMainProperties() {
         if (mainProperties == null) {
             try {
                 PropertiesManager.mainProperties = new PropertiesManager(System.getProperty("videoquacker.properties"));
                 PropertiesManager.mainProperties.isMainProperties = true;
             } catch (ExceptionInInitializerError err) {
                 PropertiesManager.mainProperties = null;
-                return null;
+                throw new RuntimeException(err);
             }
         }
         return PropertiesManager.mainProperties;
@@ -41,20 +43,23 @@ public class PropertiesManager {
     public boolean isValid() {
         if (this.isMainProperties) {
             boolean isMissingProperties = this.properties.getProperty(PropertiesKeys.ffmpeg_file_path.keyName) == null ||
+                                          this.properties.getProperty(PropertiesKeys.ffprobe_file_path.keyName) == null ||
                                           this.properties.getProperty(PropertiesKeys.work_path.keyName) == null ||
                                           this.properties.getProperty(PropertiesKeys.series_path.keyName) == null;
             if (isMissingProperties) return false;
             Path pathFFMPEG = Paths.get(this.properties.getProperty(PropertiesKeys.ffmpeg_file_path.keyName));
+            Path pathFFPROBE = Paths.get(this.properties.getProperty(PropertiesKeys.ffprobe_file_path.keyName));
             Path pathWork = Paths.get(this.properties.getProperty(PropertiesKeys.work_path.keyName));
             Path pathSeries = Paths.get(this.properties.getProperty(PropertiesKeys.series_path.keyName));
             if (!Files.isRegularFile(pathFFMPEG) || !pathFFMPEG.getFileName().toString().equals("ffmpeg.exe") ||
+                !Files.isRegularFile(pathFFPROBE) || !pathFFPROBE.getFileName().toString().equals("ffprobe.exe") ||
                     !Files.isDirectory(pathWork) || !Files.isDirectory(pathSeries)) return false;
         } else {
             boolean isMissingProperties = this.properties.getProperty(PropertiesKeys.name_pattern.keyName) == null ||
                                           this.properties.getProperty(PropertiesKeys.default_quality.keyName) == null ||
                                           this.properties.getProperty(PropertiesKeys.max_ep.keyName) == null ||
                                           this.properties.getProperty(PropertiesKeys.alternatives_names.keyName) == null;
-            if (isMissingProperties) return false;
+            return !isMissingProperties;
         }
         return true;
     }
@@ -65,6 +70,7 @@ public class PropertiesManager {
          * Main Properties file keys
          */
         ffmpeg_file_path("path.ffmpeg"),
+        ffprobe_file_path("path.ffprobe"),
         work_path("path.workdir"),
         series_path("path.series"),
 

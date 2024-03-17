@@ -11,6 +11,8 @@ module com.quack.videoquacker {
     requires eu.hansolo.tilesfx;
     requires java.desktop;
     requires org.apache.commons.validator;
+    requires org.apache.commons.lang3;
+    requires org.apache.commons.io;
     requires org.json;
     requires static lombok;
     requires com.google.gson;

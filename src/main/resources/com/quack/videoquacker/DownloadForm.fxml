@@ -28,7 +28,7 @@
          <Font size="18.0" />
       </font>
    </Label>
-    <TextField fx:id="tfURL" maxWidth="1.7976931348623157E308" promptText="URL to download from (m3u8 file or direct stream)" GridPane.columnSpan="2147483647" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
+    <TextField fx:id="tfURL" maxWidth="1.7976931348623157E308" promptText="URL to download from (m3u8 file or direct stream)" text="http://placeholderurl.com" GridPane.columnSpan="2147483647" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
     <Label text="Episode name" GridPane.rowIndex="2" />
     <TextField fx:id="tfTargetEpname" promptText="Episode name after download" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" />
    <Label layoutX="10.0" layoutY="49.0" text="Quality" GridPane.rowIndex="3" />
