@@ -2,7 +2,6 @@ package com.quack.videoquacker.models;
 
 import com.google.gson.Gson;
 import lombok.Data;
-import lombok.Getter;
 import org.json.JSONObject;
 
 import java.util.HashMap;

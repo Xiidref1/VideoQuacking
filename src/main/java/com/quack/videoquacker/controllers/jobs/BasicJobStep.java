@@ -18,7 +18,6 @@ import lombok.Getter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public abstract class BasicJobStep {
     protected JobPaneController controller;
@@ -84,6 +83,4 @@ public abstract class BasicJobStep {
             this.processColorControl.put(label, color);
         }
     }
-
-
 }

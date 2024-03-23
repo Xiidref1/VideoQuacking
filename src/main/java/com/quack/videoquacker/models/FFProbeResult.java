@@ -1,18 +1,18 @@
 package com.quack.videoquacker.models;
 
-import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+
+import static com.quack.videoquacker.utils.DataManager.*;
 
 @Data
 public class FFProbeResult {
-
     @Data
     @AllArgsConstructor
     private static class VideoStream {
@@ -34,43 +34,50 @@ public class FFProbeResult {
     }
 
 
+    private String pathProbed;
+    private HashMap<String, String> requestHeaders;
 
     private String fileName;
-    private long durationMilis;
-    private long fileSizeInBytes;
-    private long bitrate;
+    private Long durationMilis;
+    private Long fileSizeInBytes;
+    private Long bitrate;
 
     private List<VideoStream> videoStreams = new ArrayList<>();
     private List<AudioStream> audioStreams = new ArrayList<>();
 
-    public FFProbeResult(String json) {
+    public FFProbeResult(String json, String pathProbed, HashMap<String, String> headersUsedForProbe) {
+        this.pathProbed = pathProbed;
+        this.requestHeaders = headersUsedForProbe;
+
+
         JSONObject jsonObject = new JSONObject(json);
 
         JSONArray streams = jsonObject.getJSONArray("streams");
         JSONObject format = jsonObject.getJSONObject("format");
 
-        this.fileName = format.getString("filename");
-        this.durationMilis = Math.round(format.getDouble("duration") * 1000);
-        this.fileSizeInBytes = format.getLong("size");
-        this.bitrate = format.getLong("bit_rate");
+        this.fileName = getStringWithDefault(format, "filename", "Not specified");
+        this.durationMilis = Math.round(getDoubleWithDefault(format, "duration",  0D)* 1000);
+        this.fileSizeInBytes = getLongWithDefault(format, "size", -1L);
+        this.bitrate = getLongWithDefault(format, "bit_rate", -1L);
+
 
         for (int i = 0; i<streams.length();i++) {
             JSONObject stream = streams.getJSONObject(i);
             if ("video".equals(stream.getString("codec_type"))) {
                 this.videoStreams.add(new VideoStream(
                         stream.getInt("index"),
-                        stream.getString("codec_name"),
-                        stream.getLong("bit_rate"),
-                        stream.getInt("width"),
-                        stream.getInt("height")
+                        getStringWithDefault(stream, "codec_name", "unknown"),
+                        getLongWithDefault(stream, "bit_rate", -1L),
+                        getIntegerWithDefault(stream, "width", -1),
+                        getIntegerWithDefault(stream, "height", -1)
                 ));
-            } else {
+            } else if ("audio".equals(stream.getString("codec_type"))) {
                 this.audioStreams.add(new AudioStream(
                         stream.getInt("index"),
-                        stream.getString("codec_name"),
-                        stream.getLong("bit_rate"),
-                        stream.getLong("sample_rate"),
-                        stream.getInt("channels")
+                        getStringWithDefault(stream, "codec_name", "unknown"),
+                        getLongWithDefault(stream, "bit_rate", -1L),
+                        getLongWithDefault(stream, "sample_rate", -1L),
+                        getIntegerWithDefault(stream, "channels", -1)
                 ));
             }
         }

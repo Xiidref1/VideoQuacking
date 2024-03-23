@@ -2,24 +2,24 @@ package com.quack.videoquacker.controllers;
 
 import com.quack.videoquacker.MainApplication;
 import com.quack.videoquacker.models.CopiedParameters;
-import com.quack.videoquacker.models.JobParameters;
 import com.quack.videoquacker.models.DownloadModesEnum;
+import com.quack.videoquacker.models.JobParameters;
 import com.quack.videoquacker.models.QualityEnum;
-import com.quack.videoquacker.utils.DataMatcher;
+import com.quack.videoquacker.utils.DataManager;
 import com.quack.videoquacker.utils.IObservableListener;
 import com.quack.videoquacker.utils.NotificationManager;
 import com.quack.videoquacker.utils.PropertiesManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DownloadFormController implements IObservableListener<String> {
-    private static String LISTENER_KEY_CLIPBOARD = "clip";
+    private static final String LISTENER_KEY_CLIPBOARD = "clip";
     private File currentSeriesSelected;
     private PropertiesManager currentSeriesProperties;
     private CopiedParameters copiedParameters = null;
@@ -28,13 +28,13 @@ public class DownloadFormController implements IObservableListener<String> {
     @FXML
     public TextField tfTargetEpname;
     @FXML
-    public ChoiceBox cbTargetQuality;
+    public ChoiceBox<String> cbTargetQuality;
     @FXML
-    public ChoiceBox cbTargetDlmode;
+    public ChoiceBox<String> cbTargetDlmode;
     @FXML
     public TextField tfDefaultNamepattern;
     @FXML
-    public ChoiceBox cbDefaultQuality;
+    public ChoiceBox<String> cbDefaultQuality;
     @FXML
     public Button btnStartDownload;
     @FXML
@@ -42,7 +42,7 @@ public class DownloadFormController implements IObservableListener<String> {
 
 
     public void startDownloadJob() {
-        if (!DataMatcher.isValidUrl(this.tfURL.getText())) {
+        if (!DataManager.isValidUrl(this.tfURL.getText())) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid url aborting");
             alert.setTitle("Invalid URL");
             alert.showAndWait();
@@ -60,10 +60,20 @@ public class DownloadFormController implements IObservableListener<String> {
             }
         }
 
-        JobParameters jobInstance = new JobParameters(DataMatcher.getUrl(this.tfURL.getText()),
+        Matcher epNumMatcher = Pattern.compile(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.name_pattern)
+                .replace("{{epnum}}", "(?<epnum>\\d+)")
+        ).matcher(this.tfTargetEpname.getText());
+
+        int epNum = -1;
+        if (epNumMatcher.matches()) {
+            epNum = Integer.parseInt(epNumMatcher.group("epnum"));
+        }
+
+        JobParameters jobInstance = new JobParameters(DataManager.getUrl(this.tfURL.getText()),
                 this.tfTargetEpname.getText(),
-                QualityEnum.getFromDisplayText((String) this.cbTargetQuality.getSelectionModel().getSelectedItem()),
-                DownloadModesEnum.getFromDisplayText((String) this.cbTargetDlmode.getSelectionModel().getSelectedItem()),
+                epNum,
+                QualityEnum.getFromDisplayText(this.cbTargetQuality.getSelectionModel().getSelectedItem()),
+                DownloadModesEnum.getFromDisplayText(this.cbTargetDlmode.getSelectionModel().getSelectedItem()),
                 this.currentSeriesSelected,
                 this.currentSeriesProperties,
                 this.copiedParameters == null ? null : this.copiedParameters.getHeaders()
@@ -74,7 +84,7 @@ public class DownloadFormController implements IObservableListener<String> {
 
     public void saveDefaults() {
         this.currentSeriesProperties.setProperty(PropertiesManager.PropertiesKeys.name_pattern, this.tfDefaultNamepattern.getText())
-                .setProperty(PropertiesManager.PropertiesKeys.default_quality, QualityEnum.getFromDisplayText((String) this.cbDefaultQuality.getValue()).name());
+                .setProperty(PropertiesManager.PropertiesKeys.default_quality, QualityEnum.getFromDisplayText(this.cbDefaultQuality.getValue()).name());
         this.onSerieSelected(this.currentSeriesSelected);
     }
 
@@ -116,7 +126,7 @@ public class DownloadFormController implements IObservableListener<String> {
         boolean needInit = false;
         try {
             propertiesManager = new PropertiesManager(path.toString());
-            if (!propertiesManager.isValid()) {
+            if (propertiesManager.isInvalid()) {
                 needInit = true;
                 path.delete();
             }
@@ -157,14 +167,14 @@ public class DownloadFormController implements IObservableListener<String> {
     @Override
     public void onObservableChange(String key, String value) {
         if (key.equals(LISTENER_KEY_CLIPBOARD)) {
-            if (DataMatcher.isValidJSON(value)) {
+            if (DataManager.isValidJSON(value)) {
                 this.copiedParameters = CopiedParameters.fromJsonString(value);
                 Platform.runLater(() -> {
                     this.tfURL.setText(this.copiedParameters.getUrl());
                 });
                 NotificationManager.notify("Data retrieved for " + this.copiedParameters.getSname() + ", episode " + this.copiedParameters.getEpnum());
             } else {
-                if (DataMatcher.isValidUrl(value)) {
+                if (DataManager.isValidUrl(value)) {
                     this.copiedParameters = null;
                     Platform.runLater(() -> {
                         this.tfURL.setText(value);

@@ -2,12 +2,11 @@ package com.quack.videoquacker.controllers;
 
 import com.quack.videoquacker.MainApplication;
 import com.quack.videoquacker.models.CopiedParameters;
-import com.quack.videoquacker.utils.DataMatcher;
+import com.quack.videoquacker.utils.DataManager;
 import com.quack.videoquacker.utils.IObservableListener;
 import com.quack.videoquacker.utils.PropertiesManager;
 import com.quack.videoquacker.utils.RessourceLocator;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -26,7 +25,7 @@ public class SeriesSelectorController implements IObservableListener<String> {
     @Override
     public void onObservableChange(String key, String value) {
         if (!key.equals(LISTENER_KEY_CLIPBOARD)) return;
-        if (DataMatcher.isValidJSON(value)) {
+        if (DataManager.isValidJSON(value)) {
             CopiedParameters parameters = CopiedParameters.fromJsonString(value);
             int matchCount = 0;
             int tvRow = -1;

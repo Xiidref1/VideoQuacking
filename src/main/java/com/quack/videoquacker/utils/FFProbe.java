@@ -17,12 +17,11 @@ import java.util.Map;
 public class FFProbe {
 
     private boolean isNetworkProbe;
-    private HashMap<String, String> networkRequestHeaders;
+    private HashMap<String, String> networkRequestHeaders = new HashMap<>();
 
-    private String ffprobeExecutablePath;
+    private final String ffprobeExecutablePath;
     private String pathToProbe;
-    private Process process;
-    private Thread processThread;
+    private Process currentProcess;
 
     private FFProbe() {
         this.ffprobeExecutablePath = PropertiesManager.getMainProperties().getProperty(PropertiesManager.PropertiesKeys.ffprobe_file_path);
@@ -51,7 +50,7 @@ public class FFProbe {
 
 
         if (this.isNetworkProbe) {
-            parameters.addAll(List.of(new String[] {"-user_agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"}));
+            parameters.addAll(List.of(new String[] {"-user_agent", DataManager.USER_AGENT}));
             StringBuilder headers = new StringBuilder();
             if (!this.networkRequestHeaders.isEmpty()){
                 for(Map.Entry<String, String> header:this.networkRequestHeaders.entrySet()) {
@@ -70,18 +69,25 @@ public class FFProbe {
     public FFProbeResult run() throws FFProbeException {
         ProcessBuilder builder = this.buildProcess();
         try {
-            this.process = builder.start();
-            String jsonOutput = IOUtils.toString(this.process.getInputStream(), StandardCharsets.UTF_8);
-            String error = IOUtils.toString(this.process.getErrorStream(), StandardCharsets.UTF_8);
-            int exitCode = this.process.waitFor();
+            this.currentProcess = builder.start();
+            String jsonOutput = IOUtils.toString(this.currentProcess.getInputStream(), StandardCharsets.UTF_8);
+            String error = IOUtils.toString(this.currentProcess.getErrorStream(), StandardCharsets.UTF_8);
+            int exitCode = this.currentProcess.waitFor();
 
             if (exitCode != 0 || !error.isEmpty()) {
                 throw new FFProbeException(String.join(" ", builder.command()) + "\nexit code="+exitCode+" ;" + error);
             } else {
-                return new FFProbeResult(jsonOutput);
+                return new FFProbeResult(jsonOutput, this.pathToProbe ,this.networkRequestHeaders);
             }
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+
+    public void kill() {
+        if (this.currentProcess != null && this.currentProcess.isAlive()) {
+            this.currentProcess.destroyForcibly();
         }
     }
 

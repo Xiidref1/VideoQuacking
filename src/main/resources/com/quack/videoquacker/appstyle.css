@@ -52,6 +52,10 @@ Button:pressed {
     -fx-background-color: rgb(224, 169, 8);
 }
 
+ProgressBar > .track {
+    -fx-text-box-border: rgba(0, 0, 0, 0.8);
+    -fx-control-inner-background: rgba(0, 0, 0, 0.2);
+}
 
 
 

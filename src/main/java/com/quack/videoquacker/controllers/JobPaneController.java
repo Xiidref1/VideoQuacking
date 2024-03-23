@@ -1,6 +1,7 @@
 package com.quack.videoquacker.controllers;
 
 import com.quack.videoquacker.controllers.jobs.BasicJobStep;
+import com.quack.videoquacker.controllers.jobs.DownloadUrlJob;
 import com.quack.videoquacker.controllers.jobs.ProbeUrlJob;
 import com.quack.videoquacker.exceptions.JobFailedException;
 import com.quack.videoquacker.models.JobParameters;
@@ -62,7 +63,7 @@ public class JobPaneController {
 
     public enum JobStepsEnum {
         STEP_PROBE("Probing url", ProbeUrlJob.class),
-        STEP_DOWNLOAD("Downloading original file", null),
+        STEP_DOWNLOAD("Downloading original file", DownloadUrlJob.class),
         STEP_PROCESSING("Processing file", null),
         STEP_FINAL_PROBE("Probing result", null),
         STEP_DONE("Done", null);

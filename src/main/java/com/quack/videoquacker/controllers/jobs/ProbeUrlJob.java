@@ -8,16 +8,10 @@ import com.quack.videoquacker.models.JobParameters;
 import com.quack.videoquacker.utils.FFProbe;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
-import javafx.scene.control.TitledPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -50,6 +44,7 @@ public class ProbeUrlJob extends BasicJobStep {
         try {
             this.probe = new FFProbe(this.jobParameters.getUrl(), this.jobParameters.getHttpHeaders());
             FFProbeResult result = this.probe.run();
+            this.jobParameters.setProbeResult(result);
             TimeUnit.SECONDS.sleep(5);
             Platform.runLater(() -> {
                 this.controller.lblProbeConnexionStatus.setText("Connected !");

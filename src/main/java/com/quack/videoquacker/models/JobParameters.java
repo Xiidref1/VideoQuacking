@@ -1,24 +1,39 @@
 package com.quack.videoquacker.models;
 
 import com.quack.videoquacker.utils.PropertiesManager;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 
 import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
 
 @Data
-@AllArgsConstructor
 public class JobParameters {
+    //Construct Items
     private URL url;
     private String targetEpName;
+    private int targetEpNum;
     private QualityEnum targetQuality;
     private DownloadModesEnum downloadMode;
     private File seriesSelected;
     private PropertiesManager seriesProperties;
     private HashMap<String, String> httpHeaders;
+
+    //Jobs data
+    private FFProbeResult probeResult;
+    private File tmpFile;
+
+
+    public JobParameters(URL url, String targetEpName, int targetEpNum, QualityEnum targetQuality, DownloadModesEnum downloadMode, File seriesSelected, PropertiesManager seriesProperties, HashMap<String, String> httpHeaders) {
+        this.url = url;
+        this.targetEpName = targetEpName;
+        this.targetEpNum = targetEpNum;
+        this.targetQuality = targetQuality;
+        this.downloadMode = downloadMode;
+        this.seriesSelected = seriesSelected;
+        this.seriesProperties = seriesProperties;
+        this.httpHeaders = httpHeaders;
+    }
 
 
     @Override

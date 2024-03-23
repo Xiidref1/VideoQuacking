@@ -3,15 +3,14 @@ package com.quack.videoquacker;
 import com.quack.videoquacker.utils.Observerable;
 import com.quack.videoquacker.utils.PropertiesManager;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
-import java.awt.Toolkit;
-
-import java.awt.datatransfer.*;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,17 +19,17 @@ import java.util.concurrent.TimeUnit;
 public class MainApplication extends Application {
     private static Clipboard systemClipboard;
     private static final Observerable<String> clipboard = new Observerable<>();
-    private static long cpt = 0;
 
     @Override
     public void start(Stage stage) throws IOException {
-        if (PropertiesManager.getMainProperties() == null || !PropertiesManager.getMainProperties().isValid()) {
+        PropertiesManager.getMainProperties();
+        if (PropertiesManager.getMainProperties().isInvalid()) {
             System.err.println("""
-                    Invalid properties file expecting the following keys : 
+                    Invalid properties file expecting the following keys :
                      - path.ffmpeg : The full path to the ffmpeg executable file (ffmpeg.exe)
                      - path.ffprobe : The full path to the ffprobe executable file (ffprobe.exe)
                      - path.workdir : The path of the working directory to be used as a temporary space during download and conversions
-                     - path.series : The path where all the series folders will be 
+                     - path.series : The path where all the series folders will be
                     """);
             return;
         }
