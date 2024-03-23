@@ -23,6 +23,6 @@ public enum QualityEnum {
                 return quality;
             }
         }
-        return null;
+        throw new RuntimeException("Unknown display text of QualityEnum : " + displayText);
     }
 }
