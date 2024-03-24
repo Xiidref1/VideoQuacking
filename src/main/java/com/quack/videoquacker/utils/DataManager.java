@@ -18,6 +18,7 @@ public class DataManager {
     }
 
     public static boolean isValidJSON(String input) {
+        if (input == null) return false;
         try {
             JSONObject obj = new JSONObject(input);
             return CopiedParameters.isValid(obj);

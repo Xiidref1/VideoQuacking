@@ -1,126 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
-<TitledPane fx:id="tpRoot" prefHeight="367.0" prefWidth="269.0" text="title" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.quack.videoquacker.controllers.JobPaneController">
-   <content>
-      <ScrollPane styleClass="backgroundBox" prefHeight="367" prefWidth="269.0" hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED" >
-         <content>
-            <AnchorPane styleClass="backgroundBox" prefHeight="331.0" prefWidth="267.0" >
-               <children>
-                  <Circle fx:id="cirProbe" fill="#a2a7ab" layoutX="25.0" layoutY="25.0" radius="11.0" stroke="BLACK" strokeType="INSIDE" />
-                  <Line endX="-112.0" endY="264.0" layoutX="137.0" layoutY="48.0" startX="-112.0" startY="-12.0" stroke="#9e9d9d" />
-                  <Circle fx:id="cirDownload" fill="#a2a7ab" layoutX="25.0" layoutY="111.0" radius="12.0" stroke="BLACK" strokeType="INSIDE" />
-                  <Label fx:id="lblDownload" layoutX="43.0" layoutY="103.0" text="Downloading using " />
-                  <ProgressBar fx:id="pbDownloadProgress" layoutX="45.0" layoutY="138.0" prefWidth="200.0" progress="0.0" />
-                  <Label fx:id="lblProbe" layoutX="43.0" layoutY="17.0" text="Probing video info" />
-                  <Label layoutX="47.0" layoutY="36.0" styleClass="textSecondary" text="Test connexion             ">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="47.0" layoutY="51.0" styleClass="textSecondary" text="Retrieving video length ">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="47.0" layoutY="66.0" styleClass="textSecondary" text="Retrieving video size     ">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="47.0" layoutY="81.0" prefHeight="15.0" prefWidth="109.0" styleClass="textSecondary" text="Retrieving video bitrate">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblProbeConnexionStatus" layoutX="165.0" layoutY="36.0" styleClass="textSecondary" text="Connecting" textFill="#bfae61">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblProbeVideoLength" layoutX="165.0" layoutY="51.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblProbeVideoSize" layoutX="165.0" layoutY="66.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblProbeBitrate" layoutX="165.0" layoutY="81.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblDownloadProgress" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="46.0" layoutY="138.0" prefHeight="17.0" prefWidth="198.0" text="progress" textAlignment="CENTER" />
-                  <Label fx:id="lblDownloadTemp" layoutX="45.0" layoutY="123.0" styleClass="textSecondary" text="Downloading as xxx.temp " textFill="#ababaa">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Circle fx:id="cirProcessing" fill="#a2a7ab" layoutX="25.0" layoutY="175.0" radius="12.0" stroke="BLACK" strokeType="INSIDE" />
-                  <Label fx:id="lblProcessing" layoutX="43.0" layoutY="167.0" text="Processing Video" />
-                  <Label fx:id="lblProcessingConvertFormat" layoutX="47.0" layoutY="185.0" styleClass="textSecondary" text="Converting to AV1" textFill="#ababaa">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblProcessingSizeLimit" layoutX="47.0" layoutY="200.0" styleClass="textSecondary" text="Limiting size to " textFill="#ababaa">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <ProgressBar fx:id="pbProcessingProgress" layoutX="45.0" layoutY="215.0" prefWidth="200.0" progress="0.0" />
-                  <Label fx:id="lblProcessingProgress" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="46.0" layoutY="216.0" prefHeight="17.0" prefWidth="198.0" text="progress" textAlignment="CENTER" />
-                  <Circle fx:id="cirProbeRes" fill="#a2a7ab" layoutX="25.0" layoutY="252.0" radius="11.0" stroke="BLACK" strokeType="INSIDE" />
-                  <Label fx:id="lblProbeRes" layoutX="42.0" layoutY="243.0" text="Probing final result" />
-                  <Label layoutX="46.0" layoutY="262.0" styleClass="textSecondary" text="File name">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="46.0" layoutY="277.0" styleClass="textSecondary" text="Video length ">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="46.0" layoutY="292.0" styleClass="textSecondary" text="Video size     ">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="46.0" layoutY="307.0" prefHeight="15.0" prefWidth="109.0" styleClass="textSecondary" text="Video bitrate">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblProbeResFilename" layoutX="120.0" layoutY="262.0" styleClass="textSecondary" text="Connecting" textFill="#ababaa">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblProbeResVideoLength" layoutX="119.0" layoutY="277.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblProbeResVideoSize" layoutX="119.0" layoutY="292.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-                  <Label fx:id="lblProbeResBitrate" layoutX="119.0" layoutY="307.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
-                     <font>
-                        <Font size="10.0" />
-                     </font>
-                  </Label>
-               </children></AnchorPane>
-         </content>
-      </ScrollPane>
 
-   </content>
+<TitledPane fx:id="tpRoot" prefHeight="367.0" prefWidth="269.0" text="title" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.quack.videoquacker.controllers.JobPaneController">
+    <ScrollPane prefHeight="367" prefWidth="269.0" styleClass="backgroundBox">
+        <AnchorPane prefHeight="331.0" prefWidth="267.0" styleClass="backgroundBox">
+            <Circle fx:id="cirProbe" fill="#a2a7ab" layoutX="25.0" layoutY="25.0" radius="11.0" stroke="BLACK" strokeType="INSIDE" />
+            <Line endX="-112.0" endY="264.0" layoutX="137.0" layoutY="48.0" startX="-112.0" startY="-12.0" stroke="#9e9d9d" />
+            <Circle fx:id="cirDownload" fill="#a2a7ab" layoutX="25.0" layoutY="111.0" radius="12.0" stroke="BLACK" strokeType="INSIDE" />
+            <Label fx:id="lblDownload" layoutX="43.0" layoutY="103.0" text="Downloading using " />
+            <ProgressBar fx:id="pbDownloadProgress" layoutX="45.0" layoutY="138.0" prefWidth="200.0" progress="0.0" />
+            <Label fx:id="lblProbe" layoutX="43.0" layoutY="17.0" text="Probing video info" />
+            <Label layoutX="47.0" layoutY="36.0" styleClass="textSecondary" text="Test connexion             ">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label layoutX="47.0" layoutY="51.0" styleClass="textSecondary" text="Retrieving video length ">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label layoutX="47.0" layoutY="66.0" styleClass="textSecondary" text="Retrieving video size     ">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label layoutX="47.0" layoutY="81.0" prefHeight="15.0" prefWidth="109.0" styleClass="textSecondary" text="Retrieving video bitrate">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label fx:id="lblProbeConnexionStatus" layoutX="165.0" layoutY="36.0" styleClass="textSecondary" text="Connecting" textFill="#bfae61">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label fx:id="lblProbeVideoLength" layoutX="165.0" layoutY="51.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label fx:id="lblProbeVideoSize" layoutX="165.0" layoutY="66.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label fx:id="lblProbeBitrate" layoutX="165.0" layoutY="81.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label fx:id="lblDownloadProgress" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="46.0" layoutY="138.0" prefHeight="17.0" prefWidth="198.0" text="progress" textAlignment="CENTER" />
+            <Label fx:id="lblDownloadTemp" layoutX="45.0" layoutY="123.0" styleClass="textSecondary" text="Downloading as xxx.temp " textFill="#ababaa">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Circle fx:id="cirProcessing" fill="#a2a7ab" layoutX="25.0" layoutY="175.0" radius="12.0" stroke="BLACK" strokeType="INSIDE" />
+            <Label fx:id="lblProcessing" layoutX="43.0" layoutY="167.0" text="Processing Video" />
+            <Label fx:id="lblProcessingConvertFormat" layoutX="47.0" layoutY="185.0" styleClass="textSecondary" text="Converting to AV1" textFill="#ababaa">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label fx:id="lblProcessingSizeLimit" layoutX="47.0" layoutY="200.0" styleClass="textSecondary" text="Limiting size to " textFill="#ababaa">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <ProgressBar fx:id="pbProcessingProgress" layoutX="45.0" layoutY="215.0" prefWidth="200.0" progress="0.0" />
+            <Label fx:id="lblProcessingProgress" alignment="TOP_CENTER" contentDisplay="CENTER" layoutX="46.0" layoutY="216.0" prefHeight="17.0" prefWidth="198.0" text="progress" textAlignment="CENTER" />
+            <Circle fx:id="cirProbeRes" fill="#a2a7ab" layoutX="25.0" layoutY="252.0" radius="11.0" stroke="BLACK" strokeType="INSIDE" />
+            <Label fx:id="lblProbeRes" layoutX="42.0" layoutY="243.0" text="Probing final result" />
+            <Label layoutX="46.0" layoutY="262.0" styleClass="textSecondary" text="File name">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label layoutX="46.0" layoutY="277.0" styleClass="textSecondary" text="Video length ">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label layoutX="46.0" layoutY="292.0" styleClass="textSecondary" text="Video size     ">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label layoutX="46.0" layoutY="307.0" prefHeight="15.0" prefWidth="109.0" styleClass="textSecondary" text="Video bitrate">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label fx:id="lblProbeResFilename" layoutX="120.0" layoutY="262.0" styleClass="textSecondary" text="Connecting" textFill="#ababaa">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label fx:id="lblProbeResVideoLength" layoutX="119.0" layoutY="277.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label fx:id="lblProbeResVideoSize" layoutX="119.0" layoutY="292.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+            <Label fx:id="lblProbeResBitrate" layoutX="119.0" layoutY="307.0" styleClass="textSecondary" text="Retrieving" textFill="#ababaa">
+                <font>
+                    <Font size="10.0" />
+                </font>
+            </Label>
+        </AnchorPane>
+    </ScrollPane>
+
 </TitledPane>

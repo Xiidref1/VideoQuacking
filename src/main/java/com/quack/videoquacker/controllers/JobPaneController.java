@@ -1,8 +1,6 @@
 package com.quack.videoquacker.controllers;
 
-import com.quack.videoquacker.controllers.jobs.BasicJobStep;
-import com.quack.videoquacker.controllers.jobs.DownloadUrlJob;
-import com.quack.videoquacker.controllers.jobs.ProbeUrlJob;
+import com.quack.videoquacker.controllers.jobs.*;
 import com.quack.videoquacker.exceptions.JobFailedException;
 import com.quack.videoquacker.models.JobParameters;
 import javafx.animation.Animation;
@@ -64,8 +62,8 @@ public class JobPaneController {
     public enum JobStepsEnum {
         STEP_PROBE("Probing url", ProbeUrlJob.class),
         STEP_DOWNLOAD("Downloading original file", DownloadUrlJob.class),
-        STEP_PROCESSING("Processing file", null),
-        STEP_FINAL_PROBE("Probing result", null),
+        STEP_PROCESSING("Processing file", ProcessVideoJob.class),
+        STEP_FINAL_PROBE("Probing result", ProbeResultJob.class),
         STEP_DONE("Done", null);
 
         public final String displayText;
@@ -175,6 +173,7 @@ public class JobPaneController {
 
     private void completeJob() {
         this.loadingLabelsTimeline.stop();
+        this.updateTitle();
     }
 
 
@@ -184,7 +183,7 @@ public class JobPaneController {
 
     private void updateTitle() {
         Platform.runLater(()-> {
-            String stepCount = (ArrayUtils.indexOf(JobStepsEnum.values(), this.currentStep) + 1) + "/" + (JobStepsEnum.values().length - 1);
+            String stepCount = (ArrayUtils.indexOf(JobStepsEnum.values(), this.currentStep) + (this.currentStep == JobStepsEnum.STEP_DONE ? 0:1)) + "/" + (JobStepsEnum.values().length - 1);
             this.tpRoot.setText(this.jobParameters.getTargetEpName() + "\n" + stepCount + " " + this.currentStep.displayText);
         });
     }

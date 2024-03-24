@@ -3,8 +3,5 @@
 <?import javafx.scene.control.Accordion?>
 <Accordion fx:id="mainAccordion" prefWidth="270" styleClass="backgroundBox" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.quack.videoquacker.controllers.CurrentJobsController">
 
-      <panes>
-
-      </panes>
 
 </Accordion>

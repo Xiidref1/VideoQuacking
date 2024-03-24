@@ -83,3 +83,14 @@ TitledPane > .title > .arrow-button .arrow
     -fx-background-color: rgba(170, 170, 10, 1);
 }
 
+ScrollPane .viewport {
+    -fx-background-color: #282824;
+    -fx-border-width: 0;
+    -fx-border-color: #282824;
+    -fx-padding: 0;
+}
+ScrollPane {
+    -fx-border-width: 0;
+    -fx-border-color: #282824;
+    -fx-padding: 0;
+}

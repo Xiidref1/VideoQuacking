@@ -2,10 +2,12 @@ package com.quack.videoquacker.controllers.jobs;
 
 import com.quack.videoquacker.controllers.JobPaneController;
 import com.quack.videoquacker.exceptions.FFMpegException;
+import com.quack.videoquacker.exceptions.FFProbeException;
 import com.quack.videoquacker.exceptions.JobFailedException;
 import com.quack.videoquacker.models.JobParameters;
 import com.quack.videoquacker.utils.DataManager;
 import com.quack.videoquacker.utils.FFMpeg;
+import com.quack.videoquacker.utils.FFProbe;
 import com.quack.videoquacker.utils.PropertiesManager;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
@@ -63,6 +65,11 @@ public class DownloadUrlJob extends BasicJobStep {
         }
 
         this.jobParameters.setTmpFile(outFile);
+        try {
+            this.jobParameters.setProbeResult(new FFProbe(outFile).run());
+        } catch (FFProbeException e) {
+            System.err.println("failed to refresh probe from result for : " + outFile + "\n\tDefault to the online probe");
+        }
 
     }
 
