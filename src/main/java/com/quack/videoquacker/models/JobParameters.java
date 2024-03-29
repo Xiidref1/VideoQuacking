@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 @Data
 public class JobParameters {
+
     //Construct Items
     private URL url;
     private String targetEpName;

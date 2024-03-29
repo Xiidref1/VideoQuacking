@@ -8,10 +8,12 @@ import com.quack.videoquacker.models.JobParameters;
 import com.quack.videoquacker.utils.FFProbe;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.shape.Circle;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -61,5 +63,17 @@ public class ProbeUrlJob extends BasicJobStep {
         } finally {
             this.controller.unregisterLoadingLabels(this.controller.lblProbeConnexionStatus, this.controller.lblProbeBitrate, this.controller.lblProbeVideoLength, this.controller.lblProbeVideoSize);
         }
+    }
+
+    @Override
+    public void stop() {
+        if (this.probe != null && this.probe.isAlive()) {
+            this.probe.kill();
+        }
+    }
+
+    @Override
+    public JobPaneController.JobStepsEnum getStep() {
+        return JobPaneController.JobStepsEnum.STEP_PROBE;
     }
 }

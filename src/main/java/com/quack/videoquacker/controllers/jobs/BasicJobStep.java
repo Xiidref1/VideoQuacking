@@ -10,11 +10,13 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
+import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import java.util.Map;
 public abstract class BasicJobStep {
     protected JobPaneController controller;
     protected JobParameters jobParameters;
+    private Thread jobThread;
 
     @Getter
     protected JobPaneController.JobStepStatusEnum status;
@@ -45,7 +48,7 @@ public abstract class BasicJobStep {
     public void start() {
         this.timeline.play();
         this.controller.registerLoadingLabels(this.getLblTitle());
-        new Thread(() -> {
+        this.jobThread = new Thread(() -> {
             this.status = JobPaneController.JobStepStatusEnum.STATUS_RUNNING;
             try {
                 this.run();
@@ -61,8 +64,11 @@ public abstract class BasicJobStep {
                 this.controller.unregisterLoadingLabels(this.getLblTitle());
                 this.handler(null);
             }
-        }).start();
+        });
+        this.jobThread.start();
     }
+
+    public abstract void stop();
 
     private Map<Label, Color> processColorControl = new HashMap<>();
     private void handler(ActionEvent actionEvent) {
@@ -83,4 +89,32 @@ public abstract class BasicJobStep {
             this.processColorControl.put(label, color);
         }
     }
+
+    public List<MenuItem> getJobOptions() {
+        ArrayList<MenuItem> res = new ArrayList<>();
+        switch (this.status) {
+            case STATUS_RUNNING:
+                MenuItem stop = new MenuItem("Stop " + this.getStep().displayText);
+                stop.setOnAction(e-> this.stop());
+                res.add(stop);
+                break;
+            case STATUS_ERROR:
+                MenuItem retry = new MenuItem("Retry " + this.getStep().displayText);
+                retry.setOnAction(e-> {
+                    this.controller.setStep(this.getStep());
+                    this.start();
+                });
+                res.add(retry);
+                break;
+            default:
+                break;
+        }
+
+        return res;
+    }
+
+
+    public abstract JobPaneController.JobStepsEnum getStep();
+
+
 }

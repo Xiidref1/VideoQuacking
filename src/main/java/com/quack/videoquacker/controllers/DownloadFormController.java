@@ -184,4 +184,11 @@ public class DownloadFormController implements IObservableListener<String> {
             }
         }
     }
+
+    public void onJobSelected(JobParameters jobParameters) {
+        this.tfURL.setText(jobParameters.getUrl().toString());
+        this.tfTargetEpname.setText(jobParameters.getTargetEpName());
+        this.cbTargetDlmode.getSelectionModel().select(jobParameters.getDownloadMode().displayText);
+        this.cbTargetQuality.getSelectionModel().select(jobParameters.getTargetQuality().displayText);
+    }
 }

@@ -2,6 +2,7 @@ package com.quack.videoquacker.controllers;
 
 import com.quack.videoquacker.MainApplication;
 import com.quack.videoquacker.models.CopiedParameters;
+import com.quack.videoquacker.models.JobParameters;
 import com.quack.videoquacker.utils.DataManager;
 import com.quack.videoquacker.utils.IObservableListener;
 import com.quack.videoquacker.utils.PropertiesManager;
@@ -102,6 +103,7 @@ public class SeriesSelectorController implements IObservableListener<String> {
     private File seriesPath;
     private Map<String, TreeItem<String>> seriesMapByName = new HashMap<>();
     private final FileNameMap fileNameMap = URLConnection.getFileNameMap();
+    private int disableNextSelectionEvent = 0;
 
 
     @FXML
@@ -155,6 +157,11 @@ public class SeriesSelectorController implements IObservableListener<String> {
     }
 
     public void onItemSelected(TreeItem<String> item) {
+        if (this.disableNextSelectionEvent > 0) {
+            this.disableNextSelectionEvent--;
+            return;
+        }
+
         if (item != null && item.getParent() == this.tiRoot) {
             // A series folder
             File selectedSeriePath = new File(this.seriesPath, item.getValue());
@@ -166,4 +173,14 @@ public class SeriesSelectorController implements IObservableListener<String> {
     }
 
 
+    public void onJobSelected(JobParameters jobParameters) {
+
+        //Check if the series name contain the copied data
+        for (Map.Entry<String, TreeItem<String>> series : this.seriesMapByName.entrySet()) {
+            if (series.getKey().equals(jobParameters.getSeriesSelected().getName())) {
+                this.disableNextSelectionEvent++;
+                this.tvArbo.getSelectionModel().select(this.tvArbo.getRow(series.getValue()));
+            }
+        }
+    }
 }

@@ -1,24 +1,35 @@
 package com.quack.videoquacker.controllers;
 
+import com.quack.videoquacker.MainApplication;
 import com.quack.videoquacker.controllers.jobs.*;
 import com.quack.videoquacker.exceptions.JobFailedException;
 import com.quack.videoquacker.models.JobParameters;
+import com.quack.videoquacker.utils.PropertiesManager;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class JobPaneController {
@@ -76,10 +87,10 @@ public class JobPaneController {
     }
 
     public enum JobStepStatusEnum {
-        STATUS_STAGING(Color.rgb(162, 167, 171, 1),Color.rgb(255, 255, 255, 0.4)),
-        STATUS_RUNNING(Color.rgb(220,220,14, 1), Color.rgb(191, 174, 97, 1)),
-        STATUS_DONE(Color.rgb(70,180,70,1), Color.rgb(255,255,255,1)),
-        STATUS_ERROR(Color.rgb(255, 0,0,1), Color.rgb(255, 0,0,1));
+        STATUS_STAGING(Color.rgb(162, 167, 171, 1), Color.rgb(255, 255, 255, 0.4)),
+        STATUS_RUNNING(Color.rgb(220, 220, 14, 1), Color.rgb(191, 174, 97, 1)),
+        STATUS_DONE(Color.rgb(70, 180, 70, 1), Color.rgb(255, 255, 255, 1)),
+        STATUS_ERROR(Color.rgb(255, 0, 0, 1), Color.rgb(255, 0, 0, 1));
 
         public final Color cirColor;
         public final Color lblColor;
@@ -99,6 +110,7 @@ public class JobPaneController {
     public void setDlFormInstance(JobParameters jobInstance) {
         this.jobParameters = jobInstance;
         this.currentStep = null;
+        this.tpRoot.setOnMouseClicked(this::onMouseClicked);
         this.initLoadingLabels();
         this.nextStep();
     }
@@ -110,28 +122,29 @@ public class JobPaneController {
         }
 
         this.loadingLabelsTimeline = new Timeline(
-            new KeyFrame(Duration.millis(700),
-                event -> {
-                    for (Label lbl : this.loadingLabels) {
-                        int pointCount = lbl.getText().length() - lbl.getText().replaceAll("\\.+$", "").length()+1;
-                        if (pointCount > 3) {
-                            pointCount = 0;
+                new KeyFrame(Duration.millis(700),
+                        event -> {
+                            for (Label lbl : this.loadingLabels) {
+                                int pointCount = lbl.getText().length() - lbl.getText().replaceAll("\\.+$", "").length() + 1;
+                                if (pointCount > 3) {
+                                    pointCount = 0;
+                                }
+                                lbl.setText(lbl.getText().replaceAll("\\.+$", "") + StringUtils.repeat(".", pointCount));
+                            }
                         }
-                        lbl.setText(lbl.getText().replaceAll("\\.+$", "") + StringUtils.repeat(".", pointCount));
-                    }
-                }
-            )
+                )
         );
         this.loadingLabelsTimeline.setCycleCount(Animation.INDEFINITE);
         this.loadingLabelsTimeline.play();
     }
 
-    public void registerLoadingLabels(Label... labels){
+    public void registerLoadingLabels(Label... labels) {
         this.loadingLabels.addAll(List.of(labels));
     }
+
     public void unregisterLoadingLabels(Label... labels) {
         this.loadingLabels.removeAll(List.of(labels));
-        for(Label lbl:labels) {
+        for (Label lbl : labels) {
             Platform.runLater(() -> {
                 lbl.setText(lbl.getText().replaceAll("\\.+$", ""));
             });
@@ -139,7 +152,15 @@ public class JobPaneController {
     }
 
 
+    public void setStep(JobStepsEnum jobStepsEnum) {
+        this.currentStep = jobStepsEnum;
+    }
+
     public void nextStep() {
+        if (this.currentStep == JobStepsEnum.STEP_DONE) {
+            //Nothing to do already done (possible if cancelled)
+            return;
+        }
         switch (this.currentStep) {
             case null:
                 this.currentStep = JobStepsEnum.values()[0];
@@ -167,8 +188,22 @@ public class JobPaneController {
 
         this.updateTitle();
     }
+
     public void stepError(JobFailedException exception) {
-        //TODO Create a context menu with option to resume the job.
+        System.err.println(exception.getMessage());
+        exception.printStackTrace();
+
+        try {
+            PrintStream writer = new PrintStream(
+                    new FileOutputStream( PropertiesManager.getMainProperties().getProperty(PropertiesManager.PropertiesKeys.logs_error_file), true));
+
+            writer.append("\n\nError at : ").append(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date())).append("\n");
+            writer.append(exception.getMessage()).append("\n");
+            exception.printStackTrace(writer);
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void completeJob() {
@@ -182,9 +217,45 @@ public class JobPaneController {
     }
 
     private void updateTitle() {
-        Platform.runLater(()-> {
-            String stepCount = (ArrayUtils.indexOf(JobStepsEnum.values(), this.currentStep) + (this.currentStep == JobStepsEnum.STEP_DONE ? 0:1)) + "/" + (JobStepsEnum.values().length - 1);
+        Platform.runLater(() -> {
+            String stepCount = (ArrayUtils.indexOf(JobStepsEnum.values(), this.currentStep) + (this.currentStep == JobStepsEnum.STEP_DONE ? 0 : 1)) + "/" + (JobStepsEnum.values().length - 1);
             this.tpRoot.setText(this.jobParameters.getTargetEpName() + "\n" + stepCount + " " + this.currentStep.displayText);
         });
+    }
+
+    private void onMouseClicked(MouseEvent event) {
+        if (event.getButton() == MouseButton.SECONDARY) {
+            ContextMenu contextMenu = new ContextMenu();
+
+            List<MenuItem> jobOptions = this.currentJob.getJobOptions();
+            contextMenu.getItems().addAll(jobOptions);
+
+            if (!jobOptions.isEmpty()) contextMenu.getItems().add(new SeparatorMenuItem());
+
+            MenuItem clear = new MenuItem("Clear");
+            clear.setOnAction(event1 -> {
+                this.stop();
+                MainWindowController.instance.currentJobsController.remove(this.jobParameters);
+            });
+            MenuItem clearAll = new MenuItem("Clear All");
+            clearAll.setOnAction(e -> MainWindowController.instance.currentJobsController.removeAll());
+            contextMenu.getItems().addAll(clear, clearAll);
+            this.tpRoot.setContextMenu(contextMenu);
+        } else if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+            MainWindowController.instance.seriesSelectorController.onJobSelected(this.jobParameters);
+            MainWindowController.instance.downloadFormController.onJobSelected(this.jobParameters);
+        }
+    }
+
+    /**
+     * Stop the current job if running
+     */
+    public void stop() {
+        if (this.currentStep != JobStepsEnum.STEP_DONE) {
+            this.currentStep = JobStepsEnum.STEP_DONE;
+            if (this.currentJob != null) {
+                this.currentJob.stop();
+            }
+        }
     }
 }

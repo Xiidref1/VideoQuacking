@@ -10,14 +10,30 @@ import com.quack.videoquacker.utils.FFMpeg;
 import com.quack.videoquacker.utils.FFProbe;
 import com.quack.videoquacker.utils.PropertiesManager;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class handling the downloading of a video from a URL
+ * Does not care about quality just take the highest available
+ */
 public class DownloadUrlJob extends BasicJobStep {
+    private FFMpeg ffMpeg = null;
+
+    /**
+     * Create from a job sequence
+     * @param controller The controller linked to this job
+     * @param jobParameters The parameters from the job creation form
+     */
     public DownloadUrlJob(JobPaneController controller, JobParameters jobParameters) {
         super(controller, jobParameters);
     }
@@ -54,7 +70,21 @@ public class DownloadUrlJob extends BasicJobStep {
         tmp_name.append("_").append(System.currentTimeMillis() / 1000).append(".mp4");
 
         File outFile = new File(PropertiesManager.getMainProperties().getProperty(PropertiesManager.PropertiesKeys.work_path), tmp_name.toString());
-        Platform.runLater(()-> this.controller.lblDownloadTemp.setText("Downloading as " + outFile.getName()));
+        Platform.runLater(() -> {
+            this.controller.lblDownloadTemp.getStyleClass().add("hyperlink");
+            this.controller.lblDownloadTemp.setText("Downloading as " + outFile.getName());
+        });
+        this.controller.lblDownloadTemp.setOnMouseClicked(mouseEvent -> {
+            try {
+                if (outFile.isFile()) {
+                    Runtime.getRuntime().exec("explorer.exe /select," + outFile.getAbsolutePath());
+                } else {
+                    Runtime.getRuntime().exec("explorer.exe /select," + outFile.getParent() + "\\");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
         switch (this.jobParameters.getDownloadMode()) {
             case FFMPEG -> {
                 this.downloadWithFFMPEG(outFile);
@@ -73,11 +103,12 @@ public class DownloadUrlJob extends BasicJobStep {
 
     }
 
+
     private void downloadWithFFMPEG(File outFile) throws JobFailedException {
-        FFMpeg ffMpeg = new FFMpeg(this.jobParameters.getProbeResult());
+        this.ffMpeg = new FFMpeg(this.jobParameters.getProbeResult());
         try {
-            ffMpeg.download(outFile, (progress, timeMillis, done) -> {
-                Platform.runLater(()-> {
+            this.ffMpeg.download(outFile, (progress, timeMillis, done) -> {
+                Platform.runLater(() -> {
                     this.controller.pbDownloadProgress.setProgress(progress);
                     this.controller.lblDownloadProgress.setText(DurationFormatUtils.formatDuration(timeMillis, "HH:mm:ss", true));
                     if (done) {
@@ -96,5 +127,18 @@ public class DownloadUrlJob extends BasicJobStep {
     private void downloadWithCustomHLS(File outFile) {
         //TODO add custom HLS
         System.err.println("TODO Custom HLS not implemented yet");
+    }
+
+
+    @Override
+    public void stop() {
+        if (this.ffMpeg != null && this.ffMpeg.isAlive()) {
+            this.ffMpeg.kill();
+        }
+    }
+
+    @Override
+    public JobPaneController.JobStepsEnum getStep() {
+        return JobPaneController.JobStepsEnum.STEP_DOWNLOAD;
     }
 }

@@ -44,7 +44,8 @@ public class PropertiesManager {
             boolean isMissingProperties = this.properties.getProperty(PropertiesKeys.ffmpeg_file_path.keyName) == null ||
                                           this.properties.getProperty(PropertiesKeys.ffprobe_file_path.keyName) == null ||
                                           this.properties.getProperty(PropertiesKeys.work_path.keyName) == null ||
-                                          this.properties.getProperty(PropertiesKeys.series_path.keyName) == null;
+                                          this.properties.getProperty(PropertiesKeys.series_path.keyName) == null ||
+                                          this.properties.getProperty(PropertiesKeys.logs_error_file.keyName) == null ;
             if (isMissingProperties) return true;
             Path pathFFMPEG = Paths.get(this.properties.getProperty(PropertiesKeys.ffmpeg_file_path.keyName));
             Path pathFFPROBE = Paths.get(this.properties.getProperty(PropertiesKeys.ffprobe_file_path.keyName));
@@ -70,6 +71,7 @@ public class PropertiesManager {
         ffprobe_file_path("path.ffprobe"),
         work_path("path.workdir"),
         series_path("path.series"),
+        logs_error_file("logs.file.error"),
 
         /**
          * Series specific properties file keys

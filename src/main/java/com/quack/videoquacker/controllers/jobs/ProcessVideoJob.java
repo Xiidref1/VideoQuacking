@@ -8,13 +8,17 @@ import com.quack.videoquacker.utils.DataManager;
 import com.quack.videoquacker.utils.FFMpeg;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.shape.Circle;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProcessVideoJob extends BasicJobStep {
+    private FFMpeg ffMpeg = null;
+
     public ProcessVideoJob(JobPaneController controller, JobParameters jobParameters) {
         super(controller, jobParameters);
     }
@@ -36,10 +40,10 @@ public class ProcessVideoJob extends BasicJobStep {
 
     @Override
     protected void run() throws JobFailedException {
-        FFMpeg ffMpeg = new FFMpeg(this.jobParameters.getProbeResult());
-        Platform.runLater(()-> this.controller.lblProcessingSizeLimit.setText("Limiting size to " + this.jobParameters.getTargetQuality().displayText));
+        this.ffMpeg = new FFMpeg(this.jobParameters.getProbeResult());
+        Platform.runLater(() -> this.controller.lblProcessingSizeLimit.setText("Limiting size to " + this.jobParameters.getTargetQuality().displayText));
         try {
-            ffMpeg.convertToAV1WithMaxSize(this.jobParameters.getTmpFile(), this.jobParameters.getTargetQuality(), new File(this.jobParameters.getSeriesSelected(), this.jobParameters.getTargetEpName()), (progress, timeMillis, done) -> Platform.runLater(()-> {
+            this.ffMpeg.convertToAV1WithMaxSize(this.jobParameters.getTmpFile(), this.jobParameters.getTargetQuality(), new File(this.jobParameters.getSeriesSelected(), this.jobParameters.getTargetEpName()), (progress, timeMillis, done) -> Platform.runLater(() -> {
                 this.controller.pbProcessingProgress.setProgress(progress);
                 this.controller.lblProcessingProgress.setText(DurationFormatUtils.formatDuration(timeMillis, "HH:mm:ss", true));
                 if (done) {
@@ -52,4 +56,18 @@ public class ProcessVideoJob extends BasicJobStep {
             throw new JobFailedException(e.getMessage());
         }
     }
+
+    @Override
+    public void stop() {
+        if (this.ffMpeg != null && this.ffMpeg.isAlive()) {
+            this.ffMpeg.kill();
+        }
+    }
+
+    @Override
+    public JobPaneController.JobStepsEnum getStep() {
+        return JobPaneController.JobStepsEnum.STEP_PROCESSING;
+    }
+
+
 }

@@ -30,6 +30,7 @@ public class MainApplication extends Application {
                      - path.ffprobe : The full path to the ffprobe executable file (ffprobe.exe)
                      - path.workdir : The path of the working directory to be used as a temporary space during download and conversions
                      - path.series : The path where all the series folders will be
+                     - logs.file.error : The file where logs will be sent on error
                     """);
             return;
         }

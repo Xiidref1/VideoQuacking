@@ -91,9 +91,15 @@ public class FFProbe {
         }
     }
 
+    public boolean isAlive() {
+        return this.currentProcess != null && this.currentProcess.isAlive();
+    }
+
 
     public static void main(String[] args) throws MalformedURLException, FFProbeException {
         FFProbe ffProbe = new FFProbe(new URL("https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_30mb.mp4"), new HashMap<>());
         FFProbeResult res = ffProbe.run();
     }
+
+
 }
