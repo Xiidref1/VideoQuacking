@@ -180,7 +180,7 @@ public class FFMpeg {
         parameters.addAll(List.of(new String[]{"-hwaccel_output_format", "cuda"}));
         parameters.addAll(List.of(new String[]{"-i", inputFile}));
         parameters.addAll(List.of(new String[]{"-c:v", "av1_nvenc"}));
-        parameters.addAll(List.of(new String[]{"-preset", "slow"}));
+        parameters.addAll(List.of(new String[]{"-preset", "p6"}));
         parameters.addAll(List.of(new String[]{"-c:a", "aac"}));
 
         // If < 0 then unlimited is selected

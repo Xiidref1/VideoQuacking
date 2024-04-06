@@ -1,5 +1,7 @@
 package com.quack.videoquacker.utils;
 
+import com.quack.videoquacker.controllers.DownloadFormController;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,5 +40,7 @@ public class Observerable<T> {
     }
 
 
-
+    public void notifyListener(IObservableListener<T> listener) {
+        listener.onObservableChange(this.registeredListeners.get(listener), this.data);
+    }
 }

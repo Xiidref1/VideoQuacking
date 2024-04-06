@@ -46,7 +46,7 @@ public class ProbeResultJob extends BasicJobStep {
         try {
             FFProbeResult probeResult = this.probe.run();
             this.jobParameters.setProbeResult(probeResult);
-            this.jobParameters.getSeriesProperties().setProperty(PropertiesManager.PropertiesKeys.max_ep, "" + (this.jobParameters.getTargetEpNum() + 1));
+            this.jobParameters.getSeriesProperties().setProperty(PropertiesManager.PropertiesKeys.max_ep, "" + (this.jobParameters.getTargetEpNum()));
 
             Platform.runLater(() -> {
                 this.controller.lblProbeResFilename.setText(new File(probeResult.getFileName()).getName());

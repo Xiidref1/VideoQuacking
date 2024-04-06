@@ -3,17 +3,21 @@ package com.quack.videoquacker.controllers;
 import com.quack.videoquacker.MainApplication;
 import com.quack.videoquacker.models.CopiedParameters;
 import com.quack.videoquacker.models.JobParameters;
-import com.quack.videoquacker.utils.DataManager;
-import com.quack.videoquacker.utils.IObservableListener;
-import com.quack.videoquacker.utils.PropertiesManager;
-import com.quack.videoquacker.utils.RessourceLocator;
+import com.quack.videoquacker.utils.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.ConnectException;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.util.HashMap;
@@ -66,7 +70,7 @@ public class SeriesSelectorController implements IObservableListener<String> {
             Platform.runLater(() -> {
                 this.tfSerieName.setText(parameters.getSname());
                 this.refreshList(this.tiRoot, this.seriesPath, LIST_REFRESH_TYPE.TYPE_FOLDER);
-                ButtonType btnTestFolder = new ButtonType("Create a test folder", ButtonBar.ButtonData.OK_DONE);
+                ButtonType btnTestFolder = new ButtonType("Create in test folder", ButtonBar.ButtonData.OK_DONE);
                 ButtonType btnFolder = new ButtonType("Create a normal folder", ButtonBar.ButtonData.OK_DONE);
                 ButtonType btnCancel = new ButtonType("Cancel and do nothing", ButtonBar.ButtonData.CANCEL_CLOSE);
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Do you want to create a test folder for it ?", btnTestFolder, btnFolder, btnCancel);
@@ -75,9 +79,13 @@ public class SeriesSelectorController implements IObservableListener<String> {
                 alert.showAndWait();
 
                 if (alert.getResult() == btnFolder || alert.getResult() == btnTestFolder) {
-                    new File(this.seriesPath, parameters.getSname().trim()).mkdirs();
                     if (alert.getResult() == btnTestFolder) {
-                        //TODO tag the folder as a test one
+                        parameters.setSname("test");
+                        this.tfSerieName.setText("test");
+                    }
+                    File destFolder = new File(this.seriesPath, parameters.getSname().trim());
+                    if (!destFolder.exists()) {
+                        destFolder.mkdirs();
                     }
                     this.refreshList(this.tiRoot, this.seriesPath, LIST_REFRESH_TYPE.TYPE_FOLDER);
                     this.tvArbo.getSelectionModel().select(this.tvArbo.getRow(this.seriesMapByName.get(parameters.getSname().trim())));
@@ -102,6 +110,7 @@ public class SeriesSelectorController implements IObservableListener<String> {
 
     private File seriesPath;
     private Map<String, TreeItem<String>> seriesMapByName = new HashMap<>();
+    private TreeItem<String> currentSelection = null;
     private final FileNameMap fileNameMap = URLConnection.getFileNameMap();
     private int disableNextSelectionEvent = 0;
 
@@ -113,8 +122,88 @@ public class SeriesSelectorController implements IObservableListener<String> {
             SeriesSelectorController.this.onItemSelected((TreeItem<String>) newValue);
         });
         this.tiRoot.setGraphic(new ImageView(new Image(RessourceLocator.getResString("icons/goku_icon.jpg"), 20, 20, true, true)));
+        this.tvArbo.addEventHandler(MouseEvent.MOUSE_CLICKED, this::handleRightClick);
         this.refreshList(this.tiRoot, this.seriesPath, LIST_REFRESH_TYPE.TYPE_FOLDER);
         MainApplication.getClipboard().registerListener(LISTENER_KEY_CLIPBOARD, this);
+    }
+
+    private void handleRightClick(MouseEvent event) {
+        if (event.getButton() == MouseButton.SECONDARY && this.currentSelection != null) {
+            if (this.currentSelection.getParent() == this.tiRoot) {
+                //If a series folder is selected
+                ContextMenu contextMenu = new ContextMenu();
+                MenuItem showFolder = new MenuItem("Open Folder");
+                showFolder.setOnAction((e) -> {
+                    try {
+                        new ProcessBuilder("explorer.exe", new File(this.seriesPath, this.currentSelection.getValue()).getAbsolutePath()).start();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                });
+
+                MenuItem deleteFolder = new MenuItem("Delete Folder");
+                deleteFolder.setOnAction((e) -> {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, String.format("Do you want to delete the '%s' folder ?", this.currentSelection.getValue()), ButtonType.YES, ButtonType.NO);
+                    alert.showAndWait();
+                    if (alert.getResult() == ButtonType.YES) {
+                        try {
+                            FileUtils.deleteDirectory(new File(this.seriesPath, this.currentSelection.getValue()));
+                            this.refreshList(this.tiRoot, this.seriesPath, LIST_REFRESH_TYPE.TYPE_FOLDER);
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                });
+                contextMenu.getItems().add(showFolder);
+                contextMenu.getItems().add(deleteFolder);
+                this.tvArbo.setContextMenu(contextMenu);
+            }
+
+            if (this.currentSelection.getParent() == null) {
+                MenuItem deleteAllFolders = new MenuItem("Delete All");
+                deleteAllFolders.setOnAction((e) -> {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Do you want to delete the ALL folders ?", ButtonType.YES, ButtonType.NO);
+                    alert.showAndWait();
+                    if (alert.getResult() == ButtonType.YES) {
+                        Alert alert2 = new Alert(Alert.AlertType.CONFIRMATION, "Sure of sure ? Like for real ?", ButtonType.YES, ButtonType.NO);
+                        alert2.showAndWait();
+                        if (alert2.getResult() == ButtonType.YES) {
+                            for (File folder : this.seriesPath.listFiles()) {
+                                if (folder.isDirectory()) {
+                                    try {
+                                        FileUtils.deleteDirectory(new File(this.seriesPath, this.currentSelection.getValue()));
+                                        this.refreshList(this.tiRoot, this.seriesPath, LIST_REFRESH_TYPE.TYPE_FOLDER);
+                                    } catch (IOException ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                }
+                            }
+                            this.refreshList(this.tiRoot, this.seriesPath, LIST_REFRESH_TYPE.TYPE_FOLDER);
+                        }
+                    }
+                });
+
+                ContextMenu contextMenu = new ContextMenu();
+                contextMenu.getItems().add(deleteAllFolders);
+                this.tvArbo.setContextMenu(contextMenu);
+            }
+
+            if (this.currentSelection.getParent() != null && this.currentSelection.getParent() != this.tiRoot) {
+                ContextMenu contextMenu = new ContextMenu();
+
+                MenuItem showInFolder = new MenuItem("Show video in folder");
+                showInFolder.setOnAction(actionEvent -> {
+                    try {
+                        new ProcessBuilder("explorer.exe",  "/select,", new File(new File(this.seriesPath, this.currentSelection.getParent().getValue()), this.currentSelection.getValue()).getAbsolutePath()).start();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+                contextMenu.getItems().add(showInFolder);
+
+                this.tvArbo.setContextMenu(contextMenu);
+            }
+        }
     }
 
     @FXML
@@ -157,6 +246,7 @@ public class SeriesSelectorController implements IObservableListener<String> {
     }
 
     public void onItemSelected(TreeItem<String> item) {
+        this.currentSelection = item;
         if (this.disableNextSelectionEvent > 0) {
             this.disableNextSelectionEvent--;
             return;

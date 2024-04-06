@@ -10,6 +10,7 @@ import com.quack.videoquacker.utils.IObservableListener;
 import com.quack.videoquacker.utils.NotificationManager;
 import com.quack.videoquacker.utils.PropertiesManager;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -149,29 +150,38 @@ public class DownloadFormController implements IObservableListener<String> {
 
         this.currentSeriesProperties = propertiesManager;
 
+        this.fillForm(Integer.parseInt(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.max_ep)) + 1,
+                QualityEnum.valueOf(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.default_quality)),
+                null
+        );
+    }
+
+
+    public void fillForm(int epNum, QualityEnum quality, String url) {
         Platform.runLater(() -> {
             //Default settings section
             this.tfDefaultNamepattern.setText(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.name_pattern));
             this.cbDefaultQuality.getSelectionModel().select(QualityEnum.valueOf(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.default_quality)).displayText);
 
             //JobLaucher settings section
-            String targetEpNum = "000000000" + (Integer.parseInt(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.max_ep)) + 1);
+            String targetEpNum = "000000000" + epNum;
             targetEpNum = targetEpNum.substring(targetEpNum.length() - Math.max(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.max_ep).length(), 2));
             this.tfTargetEpname.setText(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.name_pattern).replace("{{epnum}}", targetEpNum));
-            this.cbTargetQuality.getSelectionModel().select(QualityEnum.valueOf(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.default_quality)).displayText);
-
+            this.cbTargetQuality.getSelectionModel().select(quality.displayText);
+            if (url != null) {
+                this.tfURL.setText(url);
+            }
             this.toogleEnabled(true);
         });
     }
 
+
     @Override
     public void onObservableChange(String key, String value) {
         if (key.equals(LISTENER_KEY_CLIPBOARD)) {
-            if (DataManager.isValidJSON(value)) {
+            if (DataManager.isValidJSON(value) && this.currentSeriesProperties!=null) {
                 this.copiedParameters = CopiedParameters.fromJsonString(value);
-                Platform.runLater(() -> {
-                    this.tfURL.setText(this.copiedParameters.getUrl());
-                });
+                this.fillForm(this.copiedParameters.getEpnum(), QualityEnum.valueOf(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.default_quality)), this.copiedParameters.getUrl());
                 NotificationManager.notify("Data retrieved for " + this.copiedParameters.getSname() + ", episode " + this.copiedParameters.getEpnum());
             } else {
                 if (DataManager.isValidUrl(value)) {
@@ -190,5 +200,9 @@ public class DownloadFormController implements IObservableListener<String> {
         this.tfTargetEpname.setText(jobParameters.getTargetEpName());
         this.cbTargetDlmode.getSelectionModel().select(jobParameters.getDownloadMode().displayText);
         this.cbTargetQuality.getSelectionModel().select(jobParameters.getTargetQuality().displayText);
+    }
+
+    public void refreshFromClipboard(ActionEvent actionEvent) {
+        MainApplication.getClipboard().notifyListener(this);
     }
 }
