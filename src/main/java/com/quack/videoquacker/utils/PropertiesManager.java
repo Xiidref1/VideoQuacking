@@ -29,6 +29,7 @@ public class PropertiesManager {
     public static @NonNull PropertiesManager getMainProperties() {
         if (mainProperties == null) {
             try {
+                System.out.println("properties = " + System.getProperty("videoquacker.properties"));
                 PropertiesManager.mainProperties = new PropertiesManager(System.getProperty("videoquacker.properties"));
                 PropertiesManager.mainProperties.isMainProperties = true;
             } catch (ExceptionInInitializerError err) {

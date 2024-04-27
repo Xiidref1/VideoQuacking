@@ -2,9 +2,11 @@ package com.quack.videoquacker;
 
 import com.quack.videoquacker.utils.Observerable;
 import com.quack.videoquacker.utils.PropertiesManager;
+import com.quack.videoquacker.utils.RessourceLocator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.awt.*;
@@ -39,6 +41,7 @@ public class MainApplication extends Application {
         stage.setTitle("VideoQuacker v2.84.9.12 Definitive Edition Deluxe (DLC Included) Free");
         stage.setScene(scene);
         stage.setResizable(false);
+        stage.getIcons().add(new Image(RessourceLocator.getResString("icons/duck_icon.png")));
         stage.show();
     }
 

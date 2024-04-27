@@ -15,7 +15,13 @@ public class CopiedParameters {
 
     public static CopiedParameters fromJsonString(String json) {
         Gson gson = new Gson();
-        return gson.fromJson(json, CopiedParameters.class);
+        CopiedParameters parameters = gson.fromJson(json, CopiedParameters.class);
+
+        //In case of a sname with invalid windows character in it
+        parameters.sname = parameters.sname.replaceAll("[\\\\/<>:?*]+", " ")
+                .replaceAll("\s+", " ");
+
+        return parameters;
     }
 
     public static boolean isValid(JSONObject obj) {
