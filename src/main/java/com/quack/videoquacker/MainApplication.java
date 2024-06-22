@@ -33,6 +33,11 @@ public class MainApplication extends Application {
                      - path.workdir : The path of the working directory to be used as a temporary space during download and conversions
                      - path.series : The path where all the series folders will be
                      - logs.file.error : The file where logs will be sent on error
+                     - pocisalie.endpoint.login : The login url of the upload service for the result
+                     - pocisalie.endpoint.logout : The login url of the upload service for the result
+                     - pocisalie.endpoint.upload : The login url of the upload service for the result
+                     - pocisalie.cred.login : The login for authentification on the login endpoint
+                     - pocisalie.cred.password : The password for authentification on the login endpoint
                     """);
             return;
         }

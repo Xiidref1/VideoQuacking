@@ -69,12 +69,21 @@ public class JobPaneController {
     public Label lblProbeResVideoSize;
     public Label lblProbeResBitrate;
 
+    @FXML
+    public Circle cirUploadRes;
+    public Label lblUploadRes;
+    public Label lblUploadResSessionConnect;
+    public Label lblUploadResProgress;
+    public Label lblUploadResFinalLink;
+    public ProgressBar pbUploadResProgress;
+
 
     public enum JobStepsEnum {
         STEP_PROBE("Probing url", ProbeUrlJob.class),
         STEP_DOWNLOAD("Downloading original file", DownloadUrlJob.class),
         STEP_PROCESSING("Processing file", ProcessVideoJob.class),
         STEP_FINAL_PROBE("Probing result", ProbeResultJob.class),
+        STEP_UPLOAD_RES("Uploading result", UploadResultJob.class),
         STEP_DONE("Done", null);
 
         public final String displayText;

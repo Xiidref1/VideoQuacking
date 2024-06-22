@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
 <GridPane hgap="10" vgap="10" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.quack.videoquacker.controllers.DownloadFormController">
     <columnConstraints>
         <ColumnConstraints />
@@ -48,12 +47,14 @@
    <TextField fx:id="tfDefaultNamepattern" layoutX="10.0" layoutY="47.0" maxWidth="1.7976931348623157E308" promptText="Serie Name S{{snum}}E{{epnum}}.mp4" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" />
    <Label layoutX="10.0" layoutY="121.0" text="Default quality" GridPane.rowIndex="8" />
    <ChoiceBox fx:id="cbDefaultQuality" layoutX="95.0" layoutY="117.0" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+   <Label text="Id For Upload" GridPane.columnIndex="2" GridPane.rowIndex="8" />
+   <TextField fx:id="tfDefaultUploadId" promptText="ID Du dossier d'upload sur pocisalie" GridPane.columnIndex="3" GridPane.rowIndex="8" />
    <Button fx:id="btnSaveDefaults" alignment="CENTER" layoutX="198.0" layoutY="152.0" mnemonicParsing="false" onAction="#saveDefaults" text="Save defaults" textAlignment="CENTER" underline="true" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="9" />
-   <Button onAction="#refreshFromClipboard" alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" text="Reload clipboard" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.halignment="RIGHT" >
+   <Button alignment="CENTER_RIGHT" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#refreshFromClipboard" text="Reload clipboard" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.halignment="RIGHT">
     <graphic>
         <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
             <!-- Add the path to your copy icon image -->
-            <Image url="@icons/copy-icon.png"/>
+            <Image url="@icons/copy-icon.png" />
         </ImageView>
     </graphic>
    </Button>

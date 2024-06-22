@@ -19,8 +19,11 @@ module com.quack.videoquacker {
 
     opens com.quack.videoquacker to javafx.fxml;
     exports com.quack.videoquacker;
-    exports com.quack.videoquacker.models;
     exports com.quack.videoquacker.controllers;
+    exports com.quack.videoquacker.controllers.jobs;
+    exports com.quack.videoquacker.exceptions;
+    exports com.quack.videoquacker.models;
+    exports com.quack.videoquacker.utils;
     opens com.quack.videoquacker.controllers to javafx.fxml;
     opens com.quack.videoquacker.models to com.google.gson;
 }

@@ -13,6 +13,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +37,8 @@ public class DownloadFormController implements IObservableListener<String> {
     public TextField tfDefaultNamepattern;
     @FXML
     public ChoiceBox<String> cbDefaultQuality;
+    @FXML
+    public TextField tfDefaultUploadId;
     @FXML
     public Button btnStartDownload;
     @FXML
@@ -77,7 +80,8 @@ public class DownloadFormController implements IObservableListener<String> {
                 DownloadModesEnum.getFromDisplayText(this.cbTargetDlmode.getSelectionModel().getSelectedItem()),
                 this.currentSeriesSelected,
                 this.currentSeriesProperties,
-                this.copiedParameters == null ? null : this.copiedParameters.getHeaders()
+                this.copiedParameters == null ? null : this.copiedParameters.getHeaders(),
+                this.tfDefaultUploadId.getText().isBlank() && StringUtils.isNumeric(this.tfDefaultUploadId.getText().trim()) ? null: Long.parseLong(this.tfDefaultUploadId.getText().trim())
         );
 
         MainWindowController.instance.currentJobsController.startJob(jobInstance);
@@ -85,7 +89,8 @@ public class DownloadFormController implements IObservableListener<String> {
 
     public void saveDefaults() {
         this.currentSeriesProperties.setProperty(PropertiesManager.PropertiesKeys.name_pattern, this.tfDefaultNamepattern.getText())
-                .setProperty(PropertiesManager.PropertiesKeys.default_quality, QualityEnum.getFromDisplayText(this.cbDefaultQuality.getValue()).name());
+                .setProperty(PropertiesManager.PropertiesKeys.default_quality, QualityEnum.getFromDisplayText(this.cbDefaultQuality.getValue()).name())
+                .setProperty(PropertiesManager.PropertiesKeys.upload_id, StringUtils.isNumeric(this.tfDefaultUploadId.getText().trim()) ? this.tfDefaultUploadId.getText().trim():"");
         this.onSerieSelected(this.currentSeriesSelected);
     }
 
@@ -104,14 +109,15 @@ public class DownloadFormController implements IObservableListener<String> {
     }
 
     private void toogleEnabled(boolean enabled) {
-        tfURL.setDisable(!enabled);
-        tfTargetEpname.setDisable(!enabled);
-        cbTargetQuality.setDisable(!enabled);
-        cbTargetDlmode.setDisable(!enabled);
-        tfDefaultNamepattern.setDisable(!enabled);
-        cbDefaultQuality.setDisable(!enabled);
-        btnStartDownload.setDisable(!enabled);
-        btnSaveDefaults.setDisable(!enabled);
+        this.tfURL.setDisable(!enabled);
+        this.tfTargetEpname.setDisable(!enabled);
+        this.tfDefaultNamepattern.setDisable(!enabled);
+        this.tfDefaultUploadId.setDisable(!enabled);
+        this.cbTargetQuality.setDisable(!enabled);
+        this.cbDefaultQuality.setDisable(!enabled);
+        this.cbTargetDlmode.setDisable(!enabled);
+        this.btnStartDownload.setDisable(!enabled);
+        this.btnSaveDefaults.setDisable(!enabled);
     }
 
 
@@ -161,6 +167,7 @@ public class DownloadFormController implements IObservableListener<String> {
         Platform.runLater(() -> {
             //Default settings section
             this.tfDefaultNamepattern.setText(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.name_pattern));
+            this.tfDefaultUploadId.setText(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.upload_id, ""));
             this.cbDefaultQuality.getSelectionModel().select(QualityEnum.valueOf(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.default_quality)).displayText);
 
             //JobLaucher settings section

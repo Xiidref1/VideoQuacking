@@ -19,13 +19,14 @@ public class JobParameters {
     private File seriesSelected;
     private PropertiesManager seriesProperties;
     private HashMap<String, String> httpHeaders;
+    private Long uploadId;
 
     //Jobs data
     private FFProbeResult probeResult;
     private File tmpFile;
 
 
-    public JobParameters(URL url, String targetEpName, int targetEpNum, QualityEnum targetQuality, DownloadModesEnum downloadMode, File seriesSelected, PropertiesManager seriesProperties, HashMap<String, String> httpHeaders) {
+    public JobParameters(URL url, String targetEpName, int targetEpNum, QualityEnum targetQuality, DownloadModesEnum downloadMode, File seriesSelected, PropertiesManager seriesProperties, HashMap<String, String> httpHeaders, Long uploadId) {
         this.url = url;
         this.targetEpName = targetEpName;
         this.targetEpNum = targetEpNum;
@@ -34,6 +35,7 @@ public class JobParameters {
         this.seriesSelected = seriesSelected;
         this.seriesProperties = seriesProperties;
         this.httpHeaders = httpHeaders;
+        this.uploadId = uploadId;
     }
 
 

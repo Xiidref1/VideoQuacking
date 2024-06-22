@@ -12,6 +12,11 @@ path.ffprobe=E:\\path\\to\\ffprobe\\ffprobe.exe
 path.workdir=E:\\path\\to\\workdir
 path.series=E:\\path\\to\\series
 logs.file.error=E:\\path\\to\\errors.log
+pocisalie.endpoint.login=https://pocisalie.xxx/login
+pocisalie.endpoint.logout=https://pocisalie.xxx/logout
+pocisalie.endpoint.upload=https://pocisalie.xxx/upload
+pocisalie.cred.login=Username
+pocisalie.cred.password=Password
 ```
 
 ## RUN : 
