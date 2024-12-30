@@ -81,7 +81,7 @@ public class DownloadFormController implements IObservableListener<String> {
                 this.currentSeriesSelected,
                 this.currentSeriesProperties,
                 this.copiedParameters == null ? null : this.copiedParameters.getHeaders(),
-                this.tfDefaultUploadId.getText().isBlank() && StringUtils.isNumeric(this.tfDefaultUploadId.getText().trim()) ? null: Long.parseLong(this.tfDefaultUploadId.getText().trim())
+                StringUtils.isNumeric(this.tfDefaultUploadId.getText().trim()) ? Long.parseLong(this.tfDefaultUploadId.getText().trim()) : null
         );
 
         MainWindowController.instance.currentJobsController.startJob(jobInstance);
@@ -90,7 +90,7 @@ public class DownloadFormController implements IObservableListener<String> {
     public void saveDefaults() {
         this.currentSeriesProperties.setProperty(PropertiesManager.PropertiesKeys.name_pattern, this.tfDefaultNamepattern.getText())
                 .setProperty(PropertiesManager.PropertiesKeys.default_quality, QualityEnum.getFromDisplayText(this.cbDefaultQuality.getValue()).name())
-                .setProperty(PropertiesManager.PropertiesKeys.upload_id, StringUtils.isNumeric(this.tfDefaultUploadId.getText().trim()) ? this.tfDefaultUploadId.getText().trim():"");
+                .setProperty(PropertiesManager.PropertiesKeys.upload_id, StringUtils.isNumeric(this.tfDefaultUploadId.getText().trim()) ? this.tfDefaultUploadId.getText().trim() : "");
         this.onSerieSelected(this.currentSeriesSelected);
     }
 
@@ -156,14 +156,17 @@ public class DownloadFormController implements IObservableListener<String> {
 
         this.currentSeriesProperties = propertiesManager;
 
-        this.fillForm(Integer.parseInt(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.max_ep)) + 1,
+        String currentMaxEp = this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.max_ep);
+        this.fillForm( StringUtils.isNumeric(currentMaxEp) ? (Integer.parseInt(currentMaxEp)) + "" : currentMaxEp,
                 QualityEnum.valueOf(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.default_quality)),
                 null
         );
+
+        MainApplication.getClipboard().notifyListener(this);
     }
 
 
-    public void fillForm(int epNum, QualityEnum quality, String url) {
+    public void fillForm(String epNum, QualityEnum quality, String url) {
         Platform.runLater(() -> {
             //Default settings section
             this.tfDefaultNamepattern.setText(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.name_pattern));
@@ -171,8 +174,11 @@ public class DownloadFormController implements IObservableListener<String> {
             this.cbDefaultQuality.getSelectionModel().select(QualityEnum.valueOf(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.default_quality)).displayText);
 
             //JobLaucher settings section
-            String targetEpNum = "000000000" + epNum;
-            targetEpNum = targetEpNum.substring(targetEpNum.length() - Math.max(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.max_ep).length(), 2));
+            String targetEpNum = epNum;
+            if (StringUtils.isNumeric(targetEpNum)) {
+                targetEpNum = "000000000" + epNum;
+                targetEpNum = targetEpNum.substring(targetEpNum.length() - Math.max(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.max_ep).length(), 2));
+            }
             this.tfTargetEpname.setText(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.name_pattern).replace("{{epnum}}", targetEpNum));
             this.cbTargetQuality.getSelectionModel().select(quality.displayText);
             if (url != null) {
@@ -186,7 +192,7 @@ public class DownloadFormController implements IObservableListener<String> {
     @Override
     public void onObservableChange(String key, String value) {
         if (key.equals(LISTENER_KEY_CLIPBOARD)) {
-            if (DataManager.isValidJSON(value) && this.currentSeriesProperties!=null) {
+            if (DataManager.isValidJSON(value) && this.currentSeriesProperties != null) {
                 this.copiedParameters = CopiedParameters.fromJsonString(value);
                 this.fillForm(this.copiedParameters.getEpnum(), QualityEnum.valueOf(this.currentSeriesProperties.getProperty(PropertiesManager.PropertiesKeys.default_quality)), this.copiedParameters.getUrl());
                 NotificationManager.notify("Data retrieved for " + this.copiedParameters.getSname() + ", episode " + this.copiedParameters.getEpnum());

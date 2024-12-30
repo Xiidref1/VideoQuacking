@@ -9,7 +9,7 @@ import java.util.HashMap;
 @Data
 public class CopiedParameters {
     private String sname;
-    private int epnum;
+    private String epnum;
     private String url;
     private HashMap<String, String> headers;
 
@@ -27,5 +27,4 @@ public class CopiedParameters {
     public static boolean isValid(JSONObject obj) {
         return obj.has("url") && obj.has("epnum") && obj.has("sname");
     }
-
 }

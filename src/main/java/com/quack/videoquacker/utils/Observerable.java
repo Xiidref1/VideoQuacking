@@ -43,4 +43,5 @@ public class Observerable<T> {
     public void notifyListener(IObservableListener<T> listener) {
         listener.onObservableChange(this.registeredListeners.get(listener), this.data);
     }
+
 }

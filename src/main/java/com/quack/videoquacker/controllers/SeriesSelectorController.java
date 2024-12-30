@@ -22,6 +22,7 @@ import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SeriesSelectorController implements IObservableListener<String> {
@@ -231,7 +232,7 @@ public class SeriesSelectorController implements IObservableListener<String> {
                     break;
                 case TYPE_VIDEO_FILES:
 
-                    if (!(f.isFile() && f.getName().contains(this.tfSerieName.getText()) && !f.getName().equals("current.properties") && (this.fileNameMap.getContentTypeFor(f.getName())).startsWith("video"))) {
+                    if (!(f.isFile() && f.getName().contains(this.tfSerieName.getText()) && !f.getName().equals("current.properties") && Optional.ofNullable(this.fileNameMap.getContentTypeFor(f.getName())).orElse("").startsWith("video"))) {
                         continue;
                     }
                     break;

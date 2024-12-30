@@ -50,13 +50,13 @@ public class FFProbe {
 
 
         if (this.isNetworkProbe) {
-            parameters.addAll(List.of(new String[] {"-user_agent", DataManager.USER_AGENT}));
+            parameters.addAll(List.of(new String[]{"-user_agent", DataManager.USER_AGENT}));
             StringBuilder headers = new StringBuilder();
-            if (!this.networkRequestHeaders.isEmpty()){
-                for(Map.Entry<String, String> header:this.networkRequestHeaders.entrySet()) {
+            if (!this.networkRequestHeaders.isEmpty()) {
+                for (Map.Entry<String, String> header : this.networkRequestHeaders.entrySet()) {
                     headers.append(header.getKey()).append(": ").append(header.getValue()).append("\r\n");
                 }
-                parameters.addAll(List.of(new String[] {"-headers", headers.toString()}));
+                parameters.addAll(List.of(new String[]{"-headers", headers.toString()}));
             }
         }
 
@@ -65,6 +65,34 @@ public class FFProbe {
 
         return new ProcessBuilder(parameters);
     }
+
+
+    private ProcessBuilder buildCMDProcess() {
+        String cmd = "";
+
+        cmd += "cmd /C \"\"" + this.ffprobeExecutablePath + "\" ";
+        //cmd += "-hide_banner -loglevel quiet ";
+        cmd += "-print_format json ";
+        cmd += "-show_entries \"stream=index,codec_type,codec_name,bit_rate,channels,sample_rate,width,height : format=duration,filename,bit_rate,probe_score,size\" ";
+
+
+        if (this.isNetworkProbe) {
+            cmd += "-user_agent \"" + DataManager.USER_AGENT +"\" ";
+            if (!this.networkRequestHeaders.isEmpty()) {
+                StringBuilder headers = new StringBuilder();
+                for (Map.Entry<String, String> header : this.networkRequestHeaders.entrySet()) {
+                    headers.append(header.getKey()).append(": ").append(header.getValue()).append("\\r\\n");
+                }
+                cmd += "-headers \""+ headers.toString().strip() +"\" ";
+            }
+        }
+
+
+        cmd += "-i \"" + this.pathToProbe + "\"\" ";
+
+        return new ProcessBuilder(cmd);
+    }
+
 
     public FFProbeResult run() throws FFProbeException {
         ProcessBuilder builder = this.buildProcess();
@@ -75,9 +103,9 @@ public class FFProbe {
             int exitCode = this.currentProcess.waitFor();
 
             if (exitCode != 0 || !error.isEmpty()) {
-                throw new FFProbeException(String.join(" ", builder.command()) + "\nexit code="+exitCode+" ;" + error);
+                throw new FFProbeException(String.join(" ", builder.command()) + "\nexit code=" + exitCode + " ;" + error);
             } else {
-                return new FFProbeResult(jsonOutput, this.pathToProbe ,this.networkRequestHeaders);
+                return new FFProbeResult(jsonOutput, this.pathToProbe, this.networkRequestHeaders);
             }
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
