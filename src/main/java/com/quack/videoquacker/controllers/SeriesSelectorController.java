@@ -80,16 +80,25 @@ public class SeriesSelectorController implements IObservableListener<String> {
                 alert.showAndWait();
 
                 if (alert.getResult() == btnFolder || alert.getResult() == btnTestFolder) {
-                    if (alert.getResult() == btnTestFolder) {
-                        parameters.setSname("test");
-                        this.tfSerieName.setText("test");
-                    }
-                    File destFolder = new File(this.seriesPath, parameters.getSname().trim());
+                    String folderName = (alert.getResult() == btnTestFolder) ? "test" : parameters.getSname().trim();
+                    this.tfSerieName.setText(folderName);
+
+                    File destFolder = new File(this.seriesPath, folderName);
                     if (!destFolder.exists()) {
                         destFolder.mkdirs();
                     }
+
                     this.refreshList(this.tiRoot, this.seriesPath, LIST_REFRESH_TYPE.TYPE_FOLDER);
-                    this.tvArbo.getSelectionModel().select(this.tvArbo.getRow(this.seriesMapByName.get(parameters.getSname().trim())));
+
+                    if ("test".equals(folderName)) {
+                        File props = new File(destFolder, "current.properties");
+                        new PropertiesManager(props.getAbsolutePath()).setProperty(
+                                PropertiesManager.PropertiesKeys.name_pattern,
+                                parameters.getSname() + " S1E{{epnum}}.mp4"
+                        );
+                    }
+
+                    this.tvArbo.getSelectionModel().select(this.tvArbo.getRow(this.seriesMapByName.get(folderName)));
                 }
             });
         }
